@@ -8,7 +8,9 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -235,6 +237,12 @@ public class AssemblyMachine {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		frame.setResizable(true);
+		
+		try {
+			frame.setIconImage(ImageIO.read(frame.getClass().getResource("/assemblerIcon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 	}
 
