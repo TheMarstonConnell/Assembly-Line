@@ -35,6 +35,7 @@ public class AssemblyWindow extends JPanel {
 	DefaultTableModel mdl;
 	public boolean useNums = true;
 	public boolean stepCode = false;
+	HashMap<String, Integer> errors;
 
 	HashMap<String, Integer> pointers;
 
@@ -252,7 +253,118 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	private void fixCode() {
+
+		String command = "";
+
+		for (Entry<String, Integer> entry : errors.entrySet()) {
+			int oldIndex = entry.getValue();
+			String line = entry.getKey();
+
+			boolean complete = false;
+			String translation = null;
+			while (!complete) {
+				translation = line.trim().substring(0, 3);
+				complete = true;
+				if (translation.equals("inp")) {
+					command = command + "01";
+				} else if (translation.equals("out")) {
+					command = command + "02";
+				} else if (translation.equals("lda")) {
+					command = command + "03";
+				} else if (translation.equals("sta")) {
+					command = command + "04";
+				} else if (translation.equals("ldm")) {
+					command = command + "05";
+				} else if (translation.equals("stm")) {
+					command = command + "06";
+				} else if (translation.equals("add")) {
+					command = command + "07";
+				} else if (translation.equals("sub")) {
+					command = command + "08";
+				} else if (translation.equals("mul")) {
+					command = command + "09";
+				} else if (translation.equals("div")) {
+					command = command + "10";
+				} else if (translation.equals("tra")) {
+					command = command + "21";
+				} else if (translation.equals("tre")) {
+					command = command + "22";
+				} else if (translation.equals("tne")) {
+					command = command + "23";
+				} else if (translation.equals("tlt")) {
+					command = command + "24";
+				} else if (translation.equals("tgt")) {
+					command = command + "25";
+				} else if (translation.equals("tle")) {
+					command = command + "26";
+				} else if (translation.equals("tge")) {
+					command = command + "27";
+				} else if (translation.equals("lal")) {
+					command = command + "-21";
+				} else if (translation.equals("lml")) {
+					command = command + "-22";
+				} else if (translation.equals("adl")) {
+					command = command + "-23";
+				} else if (translation.equals("sbl")) {
+					command = command + "-24";
+				} else if (translation.equals("mpl")) {
+					command = command + "-25";
+				} else if (translation.equals("cvl")) {
+					command = command + "-26";
+				} else if (translation.equals("lax")) {
+					command = command + "28";
+				} else if (translation.equals("stx")) {
+					command = command + "29";
+				} else if (translation.equals("inx")) {
+					command = command + "31";
+				} else if (translation.equals("dex")) {
+					command = command + "32";
+				} else if (translation.equals("lay")) {
+					command = command + "-28";
+				} else if (translation.equals("sty")) {
+					command = command + "-29";
+				} else if (translation.equals("iny")) {
+					command = command + "-31";
+				} else if (translation.equals("dey")) {
+					command = command + "-32";
+				} else if (translation.equals("gsb")) {
+					command = command + "-27";
+				} else if (translation.equals("ret")) {
+					command = command + "-30";
+				} else if (translation.equals("def")) {
+					command = command + "30";
+				} else if (translation.equals("end")) {
+					command = command + "00";
+				} else {
+					complete = false;
+					pointers.put(translation, oldIndex);
+					line = line.substring(3);
+				}
+
+			}
+
+			int ln = line.indexOf('/');
+			if (ln < 0) {
+				ln = line.length();
+			}
+
+			if (translation.equals("lal") || translation.equals("lml") || translation.equals("adl")
+					|| translation.equals("sbl") || translation.equals("mpl") || translation.equals("dvl")) {
+				command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
+			} else {
+
+				command = command + String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+
+			}
+			commands[oldIndex] = command;
+
+		}
+
+	}
+
 	public void compile() {
+		errors = new HashMap<String, Integer>();
 		pointers.clear();
 		for (int x = 0; x < commands.length; x++) {
 			commands[x] = "";
@@ -267,6 +379,7 @@ public class AssemblyWindow extends JPanel {
 				// When using number opcodes and registries
 
 				int j = 0;
+				int p = 0;
 				for (String line : lines) {
 					if (!(j >= 999)) {
 						if (line.charAt(0) == '/') {
@@ -282,6 +395,7 @@ public class AssemblyWindow extends JPanel {
 
 					}
 					j++;
+					p++;
 				}
 
 				for (int i = 0; i < commands.length; i++) {
@@ -294,6 +408,7 @@ public class AssemblyWindow extends JPanel {
 
 				if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
 
+					int p = 0;
 					int j = 0;
 					for (String line : lines) {
 
@@ -409,18 +524,28 @@ public class AssemblyWindow extends JPanel {
 										|| translation.equals("adl") || translation.equals("sbl")
 										|| translation.equals("mpl") || translation.equals("dvl")) {
 									command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
+								} else if (translation.equals("end")) {
+									command = command + "000";
 								} else {
-									command = command
-											+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+									if (pointers.get(line.substring(3, ln).trim()) == null) {
+
+										errors.put(line, oldIndex);
+									} else {
+										command = command
+												+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+									}
 								}
+
 							}
 
 							commands[oldIndex] = command;
 							j++;
-
+							p++;
 						}
 
 					}
+
+					fixCode();
 
 					for (int i = 0; i < commands.length; i++) {
 						mdl.setValueAt(commands[i], i, 1);
@@ -478,6 +603,7 @@ public class AssemblyWindow extends JPanel {
 						while (!complete) {
 							translation = line.trim().substring(0, 3);
 							complete = true;
+							boolean lit = false;
 							if (translation.equals("inp") || translation.equals("out") || translation.equals("lda")
 									|| translation.equals("sta") || translation.equals("ldm")
 									|| translation.equals("stm") || translation.equals("add")
@@ -496,6 +622,11 @@ public class AssemblyWindow extends JPanel {
 									|| translation.equals("ret") || translation.equals("def")
 									|| translation.equals("end") || translation.equals("gsb")) {
 
+								if (translation.equals("lal") || translation.equals("lml") || translation.equals("adl")
+										|| translation.equals("sbl") || translation.equals("mpl")
+										|| translation.equals("dvl")) {
+									lit = true;
+								}
 								System.out.println(translation);
 								int ln = line.indexOf('/');
 								if (ln < 0) {
@@ -503,12 +634,18 @@ public class AssemblyWindow extends JPanel {
 								}
 								System.out.println(backupLine);
 
+								String sub = line.substring(3, ln);
+
+								if (lit) {
+									sub = "=" + sub;
+								}
+
 								if (backupLine.indexOf('/') >= 0) {
 
-									newLine = newLine + "\t" + translation + "\t" + line.substring(3, ln) + "\t"
+									newLine = newLine + "\t" + translation + "\t" + sub + "\t"
 											+ backupLine.substring(backupLine.indexOf('/')).replace('/', ' ').trim();
 								} else {
-									newLine = newLine + "\t" + translation + "\t" + line.substring(3, ln) + "\t";
+									newLine = newLine + "\t" + translation + "\t" + sub + "\t";
 								}
 
 							} else {
@@ -521,12 +658,11 @@ public class AssemblyWindow extends JPanel {
 						System.out.println(newLine);
 						copiedCode = copiedCode + newLine + "\n";
 					}
-					
 
 				}
 
 			}
-		}else {
+		} else {
 			return newCode;
 		}
 
@@ -534,7 +670,7 @@ public class AssemblyWindow extends JPanel {
 
 		return copiedCode;
 	}
-	
+
 	public void cleanUp() {
 		String newCode = copyCode();
 		code.setText(newCode);
