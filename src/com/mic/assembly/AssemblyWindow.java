@@ -2,12 +2,16 @@ package com.mic.assembly;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -26,6 +30,16 @@ public class AssemblyWindow extends JPanel {
 	JButton compileCode;
 	JTable memory;
 	String[] commands;
+
+	// graphics
+	int xPos = 0;
+	int yPos = 0;
+	int red = 0;
+	int blue = 0;
+	int green = 0;
+	BufferedImage graphics;
+	DrawingPane graphicsPane;
+
 	JTextField input;
 	JTextField AC;
 	JTextField MQ;
@@ -40,6 +54,7 @@ public class AssemblyWindow extends JPanel {
 	HashMap<String, Integer> pointers;
 
 	int recentChange = 0;
+	private Color color;
 
 	public AssemblyWindow() {
 		super(new GridBagLayout());
@@ -82,7 +97,7 @@ public class AssemblyWindow extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(code);
 		scrollPane.setRowHeaderView(tln);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setPreferredSize(new Dimension(400, 200));
+		scrollPane.setPreferredSize(new Dimension(300, 300));
 		JLabel tf = new JLabel("OCREG");
 		scrollPane.setColumnHeaderView(tf);
 
@@ -99,7 +114,22 @@ public class AssemblyWindow extends JPanel {
 		memory.setModel(mdl);
 
 		JScrollPane memoryDisplay = new JScrollPane(memory);
-		memoryDisplay.setPreferredSize(new Dimension(400, 200));
+		memoryDisplay.setPreferredSize(new Dimension(300, 300));
+
+		JPanel p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder("Graphics"));
+
+		graphicsPane = new DrawingPane();
+		graphicsPane.setPreferredSize(new Dimension(400, 300));
+
+		Graphics g = graphicsPane.toDraw.createGraphics();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, 400, 200);
+		g.dispose();
+		graphicsPane.repaint();
+		this.color = Color.white;
+
+		p.add(graphicsPane);
 
 		AC = new JTextField();
 		AC.setEditable(false);
@@ -121,6 +151,8 @@ public class AssemblyWindow extends JPanel {
 		input.setBackground(Color.white);
 
 		// Add Components to this panel.
+		p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder("Graphics"));
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.ipady = 0;
@@ -128,15 +160,27 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 0;
 		c.gridwidth = 3;
 		c.gridheight = 1;
-		add(scrollPane, c);
+		p.add(scrollPane);
+		add(p, c);
 
+		p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder("Graphics"));
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 4;
 		c.gridy = 0;
 		c.gridwidth = 4;
 		c.gridheight = 1;
-		add(memoryDisplay, c);
+		p.add(memoryDisplay);
+		add(p, c);
+
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 8;
+		c.gridy = 0;
+		c.gridwidth = 4;
+		c.gridheight = 1;
+		add(p, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -255,11 +299,17 @@ public class AssemblyWindow extends JPanel {
 
 	private void fixCode() {
 
-		String command = "";
-
 		for (Entry<String, Integer> entry : errors.entrySet()) {
+			String command = "";
 			int oldIndex = entry.getValue();
 			String line = entry.getKey();
+
+			int ln = line.indexOf('/');
+			if (ln < 0) {
+				ln = line.length();
+			}
+
+			line = line.substring(0, ln);
 
 			boolean complete = false;
 			String translation = null;
@@ -344,7 +394,7 @@ public class AssemblyWindow extends JPanel {
 
 			}
 
-			int ln = line.indexOf('/');
+			ln = line.indexOf('/');
 			if (ln < 0) {
 				ln = line.length();
 			}
@@ -408,7 +458,6 @@ public class AssemblyWindow extends JPanel {
 
 				if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
 
-					int p = 0;
 					int j = 0;
 					for (String line : lines) {
 
@@ -417,6 +466,7 @@ public class AssemblyWindow extends JPanel {
 								line = "";
 							}
 
+							line = line.replaceAll("\t", "");
 							line = line.replaceAll("\\s+", "");
 							int openSpace = findOpenSpace(commands, j);
 
@@ -518,13 +568,22 @@ public class AssemblyWindow extends JPanel {
 
 								if (translation.equals("inp") || translation.equals("sta")
 										|| translation.equals("stm")) {
-									command = command + String.format("%03d", openSpace);
-									pointers.put(line.substring(3, ln), openSpace);
+									if (!pointers.containsKey(line.substring(3, ln).trim())) {
+										command = command + String.format("%03d", openSpace);
+										pointers.put(line.substring(3, ln).trim(), openSpace);
+									} else {
+										command = command
+												+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+									}
 								} else if (translation.equals("lal") || translation.equals("lml")
 										|| translation.equals("adl") || translation.equals("sbl")
 										|| translation.equals("mpl") || translation.equals("dvl")) {
 									command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
-								} else if (translation.equals("end")) {
+								} else if (translation.equals("end") || translation.equals("lax")
+										|| translation.equals("stx") || translation.equals("inx")
+										|| translation.equals("dex") || translation.equals("lay")
+										|| translation.equals("sty") || translation.equals("iny")
+										|| translation.equals("dey")) {
 									command = command + "000";
 								} else {
 									if (pointers.get(line.substring(3, ln).trim()) == null) {
@@ -540,7 +599,6 @@ public class AssemblyWindow extends JPanel {
 
 							commands[oldIndex] = command;
 							j++;
-							p++;
 						}
 
 					}
@@ -567,6 +625,11 @@ public class AssemblyWindow extends JPanel {
 		yReg.setText("");
 		input.setText("");
 		code.setText("");
+		Graphics g = graphicsPane.toDraw.getGraphics();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, 1000, 500);
+		g.dispose();
+		graphicsPane.repaint();
 		for (int x = 0; x < commands.length; x++) {
 			commands[x] = "";
 		}
@@ -593,8 +656,6 @@ public class AssemblyWindow extends JPanel {
 					}
 
 					line = line.replaceAll("\\s+", "");
-
-					String command = "";
 
 					if (!line.equals("")) {
 
@@ -627,13 +688,10 @@ public class AssemblyWindow extends JPanel {
 										|| translation.equals("dvl")) {
 									lit = true;
 								}
-								System.out.println(translation);
 								int ln = line.indexOf('/');
 								if (ln < 0) {
 									ln = line.length();
 								}
-								System.out.println(backupLine);
-
 								String sub = line.substring(3, ln);
 
 								if (lit) {
@@ -643,19 +701,17 @@ public class AssemblyWindow extends JPanel {
 								if (backupLine.indexOf('/') >= 0) {
 
 									newLine = newLine + "\t" + translation + "\t" + sub + "\t"
-											+ backupLine.substring(backupLine.indexOf('/')).replace('/', ' ').trim();
+											+ backupLine.substring(backupLine.indexOf('/')).trim();
 								} else {
 									newLine = newLine + "\t" + translation + "\t" + sub + "\t";
 								}
 
 							} else {
 								complete = false;
-								System.out.println("Label: " + translation);
 								line = line.substring(3);
 								newLine = newLine + translation;
 							}
 						}
-						System.out.println(newLine);
 						copiedCode = copiedCode + newLine + "\n";
 					}
 
@@ -673,7 +729,7 @@ public class AssemblyWindow extends JPanel {
 
 	public void cleanUp() {
 		String newCode = copyCode();
-		code.setText(newCode);
+		code.setText(newCode.replaceAll("=", ""));
 	}
 
 	private void runCode() {
@@ -684,7 +740,14 @@ public class AssemblyWindow extends JPanel {
 		yReg.setText("");
 		input.setText("");
 
+		Graphics g = graphicsPane.toDraw.getGraphics();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, 1000, 500);
+		g.dispose();
+		graphicsPane.repaint();
+
 		for (int i = 0; i < 1000; i++) {
+			int curI = i;
 			boolean cont = false;
 			for (int j = i; j < 1000; j++) {
 				if (mdl.getValueAt(j, 1) != "" && mdl.getValueAt(j, 1) != " ") {
@@ -735,22 +798,22 @@ public class AssemblyWindow extends JPanel {
 
 							num = Integer.valueOf(AC.getText()) + Integer.valueOf((String) mdl.getValueAt(m, 1));
 							AC.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(AC.getText());
+							recentChange = num;
 							break;
 						case 8:
 							num = Integer.valueOf(AC.getText()) - Integer.valueOf((String) mdl.getValueAt(m, 1));
 							AC.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(AC.getText());
+							recentChange = num;
 							break;
 						case 9:
 							num = Integer.valueOf(MQ.getText()) * Integer.valueOf((String) mdl.getValueAt(m, 1));
 							MQ.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(MQ.getText());
+							recentChange = num;
 							break;
 						case 10:
 							num = Integer.valueOf(MQ.getText()) / Integer.valueOf((String) mdl.getValueAt(m, 1));
 							MQ.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(MQ.getText());
+							recentChange = num;
 							break;
 						case 21:
 							i = m - 1;
@@ -788,22 +851,45 @@ public class AssemblyWindow extends JPanel {
 
 						case 28:
 							AC.setText(((String) xReg.getText().trim()));
-							recentChange = Integer.valueOf(AC.getText());
+							recentChange = Integer.valueOf(xReg.getText());
 							break;
 						case 29:
 							xReg.setText(AC.getText());
-							recentChange = Integer.valueOf(xReg.getText());
-
+							recentChange = Integer.valueOf(AC.getText());
 							break;
 						case 31:
 							num = Integer.valueOf(xReg.getText()) + 1;
 							xReg.setText(String.valueOf(num));
-							recentChange = Integer.valueOf(xReg.getText());
+							recentChange = num;
 							break;
 						case 32:
 							num = Integer.valueOf(xReg.getText()) - 1;
 							xReg.setText(String.valueOf(num));
-							recentChange = Integer.valueOf(xReg.getText());
+							recentChange = num;
+							break;
+						case 40:
+							graphicsPane.repaint();
+							break;
+						case 41:
+							g = graphicsPane.toDraw.getGraphics();
+							g.setColor(new Color(red, blue, green));
+							g.fillRect(xPos, yPos, 1, 1);
+							g.dispose();
+							break;
+						case 43:
+							xPos = Integer.valueOf((String.valueOf(m)).trim());
+							break;
+						case 44:
+							yPos = Integer.valueOf((String.valueOf(m)).trim());
+							break;
+						case 45:
+							red = Integer.valueOf((String.valueOf(m)).trim());
+							break;
+						case 46:
+							blue = Integer.valueOf((String.valueOf(m)).trim());
+							break;
+						case 47:
+							green = Integer.valueOf((String.valueOf(m)).trim());
 							break;
 						default:
 							JOptionPane.showMessageDialog(this,
@@ -811,7 +897,6 @@ public class AssemblyWindow extends JPanel {
 									"Runtime Error", JOptionPane.WARNING_MESSAGE);
 							return;
 						}
-
 						// if negative operator
 					} else {
 						m = Integer.valueOf(((String) mdl.getValueAt(i, 1)).substring(3, 6).trim());
@@ -870,7 +955,8 @@ public class AssemblyWindow extends JPanel {
 				}
 			}
 			if (stepCode) {
-				JOptionPane.showMessageDialog(this, "Completed step in code.", "Stepping", JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Completed step in code on line " + curI + ".", "Stepping",
+						JOptionPane.PLAIN_MESSAGE);
 			}
 		}
 	}
@@ -905,7 +991,6 @@ public class AssemblyWindow extends JPanel {
 			if (array[x].trim().equals("")) {
 				if (!pointers.isEmpty()) {
 					for (Entry<String, Integer> entry : pointers.entrySet()) {
-						System.out.println(entry.getValue());
 						boolean contains = false;
 						if (entry.getValue().equals(x)) {
 							contains = true;
