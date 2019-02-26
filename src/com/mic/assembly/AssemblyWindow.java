@@ -526,11 +526,18 @@ public class AssemblyWindow extends JPanel {
 				}
 
 			}
+		}else {
+			return newCode;
 		}
 
 		System.out.println("\n" + copiedCode);
 
 		return copiedCode;
+	}
+	
+	public void cleanUp() {
+		String newCode = copyCode();
+		code.setText(newCode);
 	}
 
 	private void runCode() {
