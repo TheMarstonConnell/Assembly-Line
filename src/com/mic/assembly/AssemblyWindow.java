@@ -8,20 +8,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Scanner;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 
 public class AssemblyWindow extends JPanel {
 
@@ -37,7 +33,8 @@ public class AssemblyWindow extends JPanel {
 	JTextField yReg;
 	String inputText = "";
 	DefaultTableModel mdl;
-	boolean useNums = false;
+	public boolean useNums = true;
+	public boolean stepCode = false;
 
 	HashMap<String, Integer> pointers;
 
@@ -45,6 +42,30 @@ public class AssemblyWindow extends JPanel {
 
 	public AssemblyWindow() {
 		super(new GridBagLayout());
+
+		System.setOut(new java.io.PrintStream(System.out) {
+
+			private StackTraceElement getCallSite() {
+				for (StackTraceElement e : Thread.currentThread().getStackTrace())
+					if (!e.getMethodName().equals("getStackTrace") && !e.getClassName().equals(getClass().getName()))
+						return e;
+				return null;
+			}
+
+			@Override
+			public void println(String s) {
+				println((Object) s);
+			}
+
+			@Override
+			public void println(Object o) {
+				StackTraceElement e = getCallSite();
+				String callSite = e == null ? "??"
+						: String.format("%s.%s(%s:%d)", e.getClassName(), e.getMethodName(), e.getFileName(),
+								e.getLineNumber());
+				super.println(callSite.replaceAll("com.mic.assembly.", "") + ":" + o);
+			}
+		});
 
 		commands = new String[1000];
 		pointers = new HashMap<String, Integer>();
@@ -232,16 +253,18 @@ public class AssemblyWindow extends JPanel {
 	}
 
 	public void compile() {
+		pointers.clear();
 		for (int x = 0; x < commands.length; x++) {
 			commands[x] = "";
 		}
 		String codeo = code.getText();
 		String[] lines = codeo.split("\n");
 		if (codeo.equals("")) {
-			JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.",
-					"Warning: Compile Error", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
+					JOptionPane.WARNING_MESSAGE);
 		} else {
 			if (useNums) {
+				// When using number opcodes and registries
 
 				int j = 0;
 				for (String line : lines) {
@@ -249,9 +272,16 @@ public class AssemblyWindow extends JPanel {
 						if (line.charAt(0) == '/') {
 							line = " ";
 						}
-						commands[findOpenSpace(commands)] = line.substring(0, line.indexOf(' '));
+
+						int ln = line.indexOf('/');
+						if (ln < 0) {
+							ln = line.length();
+						}
+
+						commands[j] = line.substring(0, ln);
 
 					}
+					j++;
 				}
 
 				for (int i = 0; i < commands.length; i++) {
@@ -259,56 +289,248 @@ public class AssemblyWindow extends JPanel {
 				}
 
 			} else {
-				int j = 0;
-				for (String line : lines) {
-					
-					if (!(j >= 999)) {
-						if (line.charAt(0) == '/') {
-							line = " ";
-						}
 
-						line = line.replaceAll("\\s+", "");
-						int openSpace = findOpenSpace(commands);
+				// When using text opcodes rather than number codes
 
-						String command = "";
-						boolean complete = false;
-						while (!complete) {
-							String translation = line.trim().substring(0, 3);
-							complete = true;
-							if (translation.equals("inp")) {
-								command = command + "01";
-							} else {
-								complete = false;
-								System.out.println(translation);
-								pointers.put(translation, j);
-								line = line.substring(3);
+				if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
+
+					int j = 0;
+					for (String line : lines) {
+
+						if (!(j >= 999)) {
+							if (line.charAt(0) == '/') {
+								line = "";
 							}
 
-						}
-						
-						int ln = line.indexOf('/');
-						if(ln < 0) {
-							ln = line.length();
-						}
-						
-						command = command + String.format("%03d", openSpace);
-						pointers.put(line.substring(3, ln), openSpace);
-						System.out.println(
-								"Adding pointer to " + openSpace + " at " + line.substring(3, ln));
+							line = line.replaceAll("\\s+", "");
+							int openSpace = findOpenSpace(commands, j);
 
-						commands[j] = command;
-						j++;
+							int oldIndex = j;
+							String command = "";
+
+							if (!line.equals("")) {
+
+								boolean complete = false;
+								String translation = null;
+								while (!complete) {
+									translation = line.trim().substring(0, 3);
+									complete = true;
+									if (translation.equals("inp")) {
+										command = command + "01";
+										j++;
+									} else if (translation.equals("out")) {
+										command = command + "02";
+									} else if (translation.equals("lda")) {
+										command = command + "03";
+									} else if (translation.equals("sta")) {
+										command = command + "04";
+										j++;
+									} else if (translation.equals("ldm")) {
+										command = command + "05";
+									} else if (translation.equals("stm")) {
+										command = command + "06";
+										j++;
+									} else if (translation.equals("add")) {
+										command = command + "07";
+									} else if (translation.equals("sub")) {
+										command = command + "08";
+									} else if (translation.equals("mul")) {
+										command = command + "09";
+									} else if (translation.equals("div")) {
+										command = command + "10";
+									} else if (translation.equals("tra")) {
+										command = command + "21";
+									} else if (translation.equals("tre")) {
+										command = command + "22";
+									} else if (translation.equals("tne")) {
+										command = command + "23";
+									} else if (translation.equals("tlt")) {
+										command = command + "24";
+									} else if (translation.equals("tgt")) {
+										command = command + "25";
+									} else if (translation.equals("tle")) {
+										command = command + "26";
+									} else if (translation.equals("tge")) {
+										command = command + "27";
+									} else if (translation.equals("lal")) {
+										command = command + "-21";
+									} else if (translation.equals("lml")) {
+										command = command + "-22";
+									} else if (translation.equals("adl")) {
+										command = command + "-23";
+									} else if (translation.equals("sbl")) {
+										command = command + "-24";
+									} else if (translation.equals("mpl")) {
+										command = command + "-25";
+									} else if (translation.equals("cvl")) {
+										command = command + "-26";
+									} else if (translation.equals("lax")) {
+										command = command + "28";
+									} else if (translation.equals("stx")) {
+										command = command + "29";
+									} else if (translation.equals("inx")) {
+										command = command + "31";
+									} else if (translation.equals("dex")) {
+										command = command + "32";
+									} else if (translation.equals("lay")) {
+										command = command + "-28";
+									} else if (translation.equals("sty")) {
+										command = command + "-29";
+									} else if (translation.equals("iny")) {
+										command = command + "-31";
+									} else if (translation.equals("dey")) {
+										command = command + "-32";
+									} else if (translation.equals("gsb")) {
+										command = command + "-27";
+									} else if (translation.equals("ret")) {
+										command = command + "-30";
+									} else if (translation.equals("def")) {
+										command = command + "30";
+									} else if (translation.equals("end")) {
+										command = command + "00";
+									} else {
+										complete = false;
+										pointers.put(translation, oldIndex);
+										line = line.substring(3);
+									}
+
+								}
+
+								int ln = line.indexOf('/');
+								if (ln < 0) {
+									ln = line.length();
+								}
+
+								if (translation.equals("inp") || translation.equals("sta")
+										|| translation.equals("stm")) {
+									command = command + String.format("%03d", openSpace);
+									pointers.put(line.substring(3, ln), openSpace);
+								} else if (translation.equals("lal") || translation.equals("lml")
+										|| translation.equals("adl") || translation.equals("sbl")
+										|| translation.equals("mpl") || translation.equals("dvl")) {
+									command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
+								} else {
+									command = command
+											+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+								}
+							}
+
+							commands[oldIndex] = command;
+							j++;
+
+						}
+
 					}
-					
-					
-				}
 
-				for (int i = 0; i < commands.length; i++) {
-					mdl.setValueAt(commands[i], i, 1);
+					for (int i = 0; i < commands.length; i++) {
+						mdl.setValueAt(commands[i], i, 1);
+					}
+
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"Either switch compile modes in 'Edit' or use proper syntax. You can always check witch syntax to use under 'File' -> 'Help'.",
+							"Compile Error", JOptionPane.WARNING_MESSAGE);
 				}
-				
 			}
 		}
+	}
+
+	public void clearCode() {
+		AC.setText("");
+		MQ.setText("");
+		xReg.setText("");
+		yReg.setText("");
+		input.setText("");
+		code.setText("");
+		for (int x = 0; x < commands.length; x++) {
+			commands[x] = "";
+		}
+		for (int i = 0; i < commands.length; i++) {
+			mdl.setValueAt(commands[i], i, 1);
+		}
+	}
+
+	public String copyCode() {
+		String newCode = code.getText();
+		String copiedCode = "";
+		String[] lines = newCode.split("\n");
+
+		if (!useNums) {
+			if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
+
+				newCode = "";
+				for (String line : lines) {
+					String backupLine = line;
+					String newLine = "";
+
+					if (line.charAt(0) == '/') {
+						line = "";
+					}
+
+					line = line.replaceAll("\\s+", "");
+
+					String command = "";
+
+					if (!line.equals("")) {
+
+						boolean complete = false;
+						String translation = null;
+						while (!complete) {
+							translation = line.trim().substring(0, 3);
+							complete = true;
+							if (translation.equals("inp") || translation.equals("out") || translation.equals("lda")
+									|| translation.equals("sta") || translation.equals("ldm")
+									|| translation.equals("stm") || translation.equals("add")
+									|| translation.equals("sub") || translation.equals("mul")
+									|| translation.equals("div") || translation.equals("tra")
+									|| translation.equals("tre") || translation.equals("tne")
+									|| translation.equals("tlt") || translation.equals("tgt")
+									|| translation.equals("tle") || translation.equals("tge")
+									|| translation.equals("lal") || translation.equals("lml")
+									|| translation.equals("adl") || translation.equals("sbl")
+									|| translation.equals("mpl") || translation.equals("cvl")
+									|| translation.equals("lax") || translation.equals("stx")
+									|| translation.equals("inx") || translation.equals("dex")
+									|| translation.equals("lay") || translation.equals("sty")
+									|| translation.equals("iny") || translation.equals("dey")
+									|| translation.equals("ret") || translation.equals("def")
+									|| translation.equals("end") || translation.equals("gsb")) {
+
+								System.out.println(translation);
+								int ln = line.indexOf('/');
+								if (ln < 0) {
+									ln = line.length();
+								}
+								System.out.println(backupLine);
+
+								if (backupLine.indexOf('/') >= 0) {
+
+									newLine = newLine + "\t" + translation + "\t" + line.substring(3, ln) + "\t"
+											+ backupLine.substring(backupLine.indexOf('/')).replace('/', ' ').trim();
+								} else {
+									newLine = newLine + "\t" + translation + "\t" + line.substring(3, ln) + "\t";
+								}
+
+							} else {
+								complete = false;
+								System.out.println("Label: " + translation);
+								line = line.substring(3);
+								newLine = newLine + translation;
+							}
+						}
+						System.out.println(newLine);
+						copiedCode = copiedCode + newLine + "\n";
+					}
+					
+
+				}
+
+			}
+		}
+
+		System.out.println("\n" + copiedCode);
+
+		return copiedCode;
 	}
 
 	private void runCode() {
@@ -320,6 +542,14 @@ public class AssemblyWindow extends JPanel {
 		input.setText("");
 
 		for (int i = 0; i < 1000; i++) {
+			boolean cont = false;
+			for (int j = i; j < 1000; j++) {
+				if (mdl.getValueAt(j, 1) != "" && mdl.getValueAt(j, 1) != " ") {
+					cont = true;
+				}
+			}
+			if (!cont)
+				return;
 			if (mdl.getValueAt(i, 1) != "" && mdl.getValueAt(i, 1) != " ") {
 				if (((String) mdl.getValueAt(i, 1)).trim().length() >= 5) {
 					int m = Integer.valueOf(((String) mdl.getValueAt(i, 1)).substring(2, 5).trim());
@@ -432,6 +662,11 @@ public class AssemblyWindow extends JPanel {
 							xReg.setText(String.valueOf(num));
 							recentChange = Integer.valueOf(xReg.getText());
 							break;
+						default:
+							JOptionPane.showMessageDialog(this,
+									"Error on line " + i + ". Please refer to 'File' -> 'Help' for available commands.",
+									"Runtime Error", JOptionPane.WARNING_MESSAGE);
+							return;
 						}
 
 						// if negative operator
@@ -491,29 +726,57 @@ public class AssemblyWindow extends JPanel {
 					}
 				}
 			}
+			if (stepCode) {
+				JOptionPane.showMessageDialog(this, "Completed step in code.", "Stepping", JOptionPane.PLAIN_MESSAGE);
+			}
 		}
+	}
+
+	private int findOpenSpace(String[] array, int reserved) {
+		for (int x = 0; x < array.length; x++) {
+			if (x != reserved) {
+				if (array[x].trim().equals("")) {
+					if (!pointers.isEmpty()) {
+						boolean contains = false;
+						for (Entry<String, Integer> entry : pointers.entrySet()) {
+							if (entry.getValue() == x) {
+								contains = true;
+							}
+						}
+						if (!contains) {
+							return x;
+						}
+
+					} else {
+						return x;
+					}
+				}
+			}
+		}
+		return -1;
+
 	}
 
 	private int findOpenSpace(String[] array) {
 		for (int x = 0; x < array.length; x++) {
-			if (array[x].equals("")) {
+			if (array[x].trim().equals("")) {
 				if (!pointers.isEmpty()) {
 					for (Entry<String, Integer> entry : pointers.entrySet()) {
 						System.out.println(entry.getValue());
 						boolean contains = false;
 						if (entry.getValue().equals(x)) {
-							System.out.println("Warning");
 							contains = true;
 						}
 						if (!contains)
-							return x + 1;
+							return x;
 
 					}
-				}else {
-					return 1;
+				} else {
+					return 0;
 				}
 			}
 		}
 		return -1;
 	}
+
 }
