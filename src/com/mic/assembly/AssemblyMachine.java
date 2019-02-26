@@ -32,8 +32,7 @@ public class AssemblyMachine {
 	final static String RUNTIME = "run";
 	static AssemblyWindow aw;
 
-	private static void createAndShowGUI() {
-
+	private static JMenuBar createMenu() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
 
@@ -126,6 +125,16 @@ public class AssemblyMachine {
 						"\r\n" + 
 						"30	def	30015	define array of size 15\r\n" + 
 						"\r\n" +  
+						"Graphics" +
+						"\r\n" + 
+						"40	rep	40000	repaint display\r\n" + 
+						"41	drw	41000	draws pixel at loaded x and y coordinates of saved colour\r\n" + 
+						"43	cxp	43045	sets x position to 45\r\n" + 
+						"44	cyp	44056	sets y position to 56\r\n" + 
+						"45	red	45123	sets red value to 123\r\n" + 
+						"46	grn	46312	sets green value to 312\r\n" + 
+						"47	blu	47213	sets blue value to 213\r\n" + 
+						"\r\n" + 
 						"Condition Codes (CC)" + 
 						"\r\n" + 
 						"-Set by most recent change to any of AC, MQ, X, Y registers.\r\n" + 
@@ -138,6 +147,7 @@ public class AssemblyMachine {
 
 				JScrollPane sp = new JScrollPane(text);
 				sp.setPreferredSize(new Dimension(600, 400));
+				text.setCaretPosition(0);
 				root.add(sp);
 				
 				help.add(root);
@@ -208,13 +218,34 @@ public class AssemblyMachine {
 		group.add(menuItem);
 		langType.add(menuItem);
 
+		JMenuItem graphics = new JMenuItem("Display Graphics");
+		graphics.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				aw.displayGraphics();
+				
+			}
+			
+		});
+		
+		
 		edit.add(langType);
 		edit.add(codeStep);
 		edit.addSeparator();
 		edit.add(cleanUp);
+		edit.addSeparator();
+		edit.add(graphics);
 
 		menuBar.add(file);
 		menuBar.add(edit);
+		
+		return menuBar;
+	}
+	
+	private static void createAndShowGUI() {
+
+		
 
 		// Create and set up the window.
 		frame = new JFrame("Assembly Machine");
@@ -230,13 +261,13 @@ public class AssemblyMachine {
 		root.add(aw, EDITOR);
 		cl.show(root, EDITOR);
 
-		frame.setJMenuBar(menuBar);
+		frame.setJMenuBar(createMenu());
 
 		// Display the window
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		frame.setResizable(true);
+		frame.setResizable(false);
 		
 		try {
 			frame.setIconImage(ImageIO.read(frame.getClass().getResource("/assemblerIcon.png")));

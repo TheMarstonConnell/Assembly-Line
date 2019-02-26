@@ -13,6 +13,8 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,13 +36,14 @@ public class AssemblyWindow extends JPanel {
 	// graphics
 	int xPos = 0;
 	int yPos = 0;
-	int red = 0;
-	int blue = 0;
-	int green = 0;
+	int red = 255;
+	int blue = 255;
+	int green = 255;
 	BufferedImage graphics;
 	DrawingPane graphicsPane;
 
 	JTextField input;
+	JDialog f = null;
 	JTextField AC;
 	JTextField MQ;
 	JTextField xReg;
@@ -58,6 +61,7 @@ public class AssemblyWindow extends JPanel {
 
 	public AssemblyWindow() {
 		super(new GridBagLayout());
+		
 
 		System.setOut(new java.io.PrintStream(System.out) {
 
@@ -97,7 +101,7 @@ public class AssemblyWindow extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(code);
 		scrollPane.setRowHeaderView(tln);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setPreferredSize(new Dimension(300, 300));
+		scrollPane.setPreferredSize(new Dimension(400, 300));
 		JLabel tf = new JLabel("OCREG");
 		scrollPane.setColumnHeaderView(tf);
 
@@ -114,10 +118,7 @@ public class AssemblyWindow extends JPanel {
 		memory.setModel(mdl);
 
 		JScrollPane memoryDisplay = new JScrollPane(memory);
-		memoryDisplay.setPreferredSize(new Dimension(300, 300));
-
-		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder("Graphics"));
+		memoryDisplay.setPreferredSize(new Dimension(400, 300));
 
 		graphicsPane = new DrawingPane();
 		graphicsPane.setPreferredSize(new Dimension(400, 300));
@@ -128,8 +129,6 @@ public class AssemblyWindow extends JPanel {
 		g.dispose();
 		graphicsPane.repaint();
 		this.color = Color.white;
-
-		p.add(graphicsPane);
 
 		AC = new JTextField();
 		AC.setEditable(false);
@@ -151,8 +150,8 @@ public class AssemblyWindow extends JPanel {
 		input.setBackground(Color.white);
 
 		// Add Components to this panel.
-		p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder("Graphics"));
+		JPanel p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder("Code"));
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.ipady = 0;
@@ -164,7 +163,7 @@ public class AssemblyWindow extends JPanel {
 		add(p, c);
 
 		p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder("Graphics"));
+		p.setBorder(BorderFactory.createTitledBorder("Memory Locations and Registries"));
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 4;
@@ -172,14 +171,6 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 4;
 		c.gridheight = 1;
 		p.add(memoryDisplay);
-		add(p, c);
-
-		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 8;
-		c.gridy = 0;
-		c.gridwidth = 4;
-		c.gridheight = 1;
 		add(p, c);
 
 		c.ipady = 0;
@@ -294,6 +285,20 @@ public class AssemblyWindow extends JPanel {
 
 			}
 		});
+		
+		f = new JDialog();
+		f.setTitle("Graphics Window");
+		f.setDefaultCloseOperation(f.HIDE_ON_CLOSE);
+		JPanel pa = new JPanel();
+		pa.setBorder(BorderFactory.createTitledBorder("Graphics"));
+		pa.add(graphicsPane);
+
+		f.add(pa);
+		f.setVisible(true);
+		f.pack();
+		f.setResizable(true);
+		f.setLocationRelativeTo(null);
+		f.setVisible(false);
 
 	}
 
@@ -553,7 +558,22 @@ public class AssemblyWindow extends JPanel {
 										command = command + "30";
 									} else if (translation.equals("end")) {
 										command = command + "00";
+									} else if (translation.equals("rep")) {
+										command = command + "40";
+									} else if (translation.equals("drw")) {
+										command = command + "41";
+									} else if (translation.equals("cxp")) {
+										command = command + "43";
+									} else if (translation.equals("cyp")) {
+										command = command + "44";
+									} else if (translation.equals("red")) {
+										command = command + "45";
+									} else if (translation.equals("grn")) {
+										command = command + "46";
+									} else if (translation.equals("blu")) {
+										command = command + "47";
 									} else {
+
 										complete = false;
 										pointers.put(translation, oldIndex);
 										line = line.substring(3);
@@ -583,7 +603,8 @@ public class AssemblyWindow extends JPanel {
 										|| translation.equals("stx") || translation.equals("inx")
 										|| translation.equals("dex") || translation.equals("lay")
 										|| translation.equals("sty") || translation.equals("iny")
-										|| translation.equals("dey")) {
+										|| translation.equals("dey") || translation.equals("rep")
+										|| translation.equals("drw")) {
 									command = command + "000";
 								} else {
 									if (pointers.get(line.substring(3, ln).trim()) == null) {
@@ -681,7 +702,11 @@ public class AssemblyWindow extends JPanel {
 									|| translation.equals("lay") || translation.equals("sty")
 									|| translation.equals("iny") || translation.equals("dey")
 									|| translation.equals("ret") || translation.equals("def")
-									|| translation.equals("end") || translation.equals("gsb")) {
+									|| translation.equals("end") || translation.equals("gsb")
+									|| translation.equals("cxp") || translation.equals("rep")
+									|| translation.equals("drw") || translation.equals("cyp")
+									|| translation.equals("red") || translation.equals("grn")
+									|| translation.equals("blu")) {
 
 								if (translation.equals("lal") || translation.equals("lml") || translation.equals("adl")
 										|| translation.equals("sbl") || translation.equals("mpl")
@@ -730,6 +755,12 @@ public class AssemblyWindow extends JPanel {
 	public void cleanUp() {
 		String newCode = copyCode();
 		code.setText(newCode.replaceAll("=", ""));
+	}
+
+	public void displayGraphics() {
+		if (!f.isActive()) {
+			f.setVisible(true);
+		}
 	}
 
 	private void runCode() {
@@ -873,23 +904,27 @@ public class AssemblyWindow extends JPanel {
 						case 41:
 							g = graphicsPane.toDraw.getGraphics();
 							g.setColor(new Color(red, blue, green));
+							System.out.println("Drawing pixel at: " + xPos + "," + yPos + ".");
 							g.fillRect(xPos, yPos, 1, 1);
 							g.dispose();
 							break;
 						case 43:
-							xPos = Integer.valueOf((String.valueOf(m)).trim());
+							xPos = Integer.valueOf((String) mdl.getValueAt(m, 1));
+							System.out.println(xPos);
 							break;
 						case 44:
-							yPos = Integer.valueOf((String.valueOf(m)).trim());
+							yPos = Integer.valueOf((String) mdl.getValueAt(m, 1));
+							System.out.println(xPos);
+
 							break;
 						case 45:
-							red = Integer.valueOf((String.valueOf(m)).trim());
+							red = Integer.valueOf((String) mdl.getValueAt(m, 1));
 							break;
 						case 46:
-							blue = Integer.valueOf((String.valueOf(m)).trim());
+							blue = Integer.valueOf((String) mdl.getValueAt(m, 1));
 							break;
 						case 47:
-							green = Integer.valueOf((String.valueOf(m)).trim());
+							green = Integer.valueOf((String) mdl.getValueAt(m, 1));
 							break;
 						default:
 							JOptionPane.showMessageDialog(this,
