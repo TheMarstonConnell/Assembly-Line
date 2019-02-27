@@ -1,4 +1,4 @@
-# AssemblyCode
+# Assembly Line - Assembly Code Emulator
 
 An assembly emulator based on the Mythical Machine. Handles both machine code and assembly with a toggle in the menu. 
 
