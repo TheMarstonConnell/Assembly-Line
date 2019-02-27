@@ -500,6 +500,7 @@ public class AssemblyWindow extends JPanel {
 							}
 
 							line = line.replaceAll("\t", "");
+							line = line.replaceAll("=", "");
 							line = line.replaceAll("\\s+", "");
 							int openSpace = findOpenSpace(commands, j);
 

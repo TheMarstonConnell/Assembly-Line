@@ -278,7 +278,7 @@ public class AssemblyMachine {
 		frame.setResizable(false);
 		
 		try {
-			frame.setIconImage(ImageIO.read(frame.getClass().getResource("/assemblerIcon.png")));
+			frame.setIconImage(ImageIO.read(frame.getClass().getResource("/assemblyIcon.png")));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
