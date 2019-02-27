@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -307,14 +308,13 @@ public class AssemblyWindow extends JPanel {
 		});
 
 		f = new JDialog();
+		f.setAlwaysOnTop(true);
 		f.setTitle("Graphics Window");
-		f.setDefaultCloseOperation(f.HIDE_ON_CLOSE);
 		JPanel pa = new JPanel();
 		pa.setBorder(BorderFactory.createTitledBorder("Graphics"));
 		pa.add(graphicsPane);
 
 		f.add(pa);
-		f.setVisible(true);
 		f.pack();
 		f.setResizable(true);
 		f.setLocationRelativeTo(null);
