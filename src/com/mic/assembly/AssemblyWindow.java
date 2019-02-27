@@ -24,7 +24,14 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 public class AssemblyWindow extends JPanel {
 
@@ -57,11 +64,47 @@ public class AssemblyWindow extends JPanel {
 	public boolean useNums = true;
 	public boolean stepCode = false;
 	HashMap<String, Integer> errors;
+	boolean styling = false;
 
 	HashMap<String, Integer> pointers;
 
 	int recentChange = 0;
 	private Color color;
+
+	private void styleText() throws BadLocationException {
+		StyleContext context = new StyleContext();
+		Style style = context.addStyle("comments", null);
+		StyleConstants.setForeground(style, Color.BLACK);
+
+		String codeo = code.getText();
+		code.getDocument().remove(0, code.getDocument().getLength());
+		String[] lines = codeo.split("\n");
+		if (codeo.equals("")) {
+			JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
+					JOptionPane.WARNING_MESSAGE);
+		} else {
+			// When using text opcodes rather than number codes
+			for (int x = 0; x < lines.length; x++) {
+				String line = lines[x];
+				
+				String command = "";
+				
+				int ln = line.indexOf('/');
+				if (ln > 0) {
+					
+					code.getDocument().insertString(0, "", style);
+					
+				}else {
+					code.getDocument().insertString(0, "", style);
+				}
+
+			}
+
+		}
+
+		styling = false;
+
+	}
 
 	public AssemblyWindow() {
 		super(new GridBagLayout());
@@ -96,6 +139,39 @@ public class AssemblyWindow extends JPanel {
 		this.setBorder(new EmptyBorder(20, 20, 20, 20));
 
 		code = new JTextPane();
+
+		Document d = code.getDocument();
+		d.addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				if (!styling) {
+					styling = true;
+					try {
+						styleText();
+					} catch (BadLocationException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				if (!styling) {
+					styling = true;
+					try {
+						styleText();
+					} catch (BadLocationException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+			}
+		});
+
 		TextLineNumber tln = new TextLineNumber(code);
 		tln.setMinimumDisplayDigits(3);
 
