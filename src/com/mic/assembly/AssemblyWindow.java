@@ -42,6 +42,8 @@ public class AssemblyWindow extends JPanel {
 	BufferedImage graphics;
 	DrawingPane graphicsPane;
 
+	public int currentKeyDown = 0;
+
 	JTextField input;
 	JDialog f = null;
 	JTextField AC;
@@ -49,6 +51,7 @@ public class AssemblyWindow extends JPanel {
 	JTextField xReg;
 	JTextField yReg;
 	String inputText = "";
+	RunThread rt;
 	DefaultTableModel mdl;
 	public boolean useNums = true;
 	public boolean stepCode = false;
@@ -61,7 +64,6 @@ public class AssemblyWindow extends JPanel {
 
 	public AssemblyWindow() {
 		super(new GridBagLayout());
-		
 
 		System.setOut(new java.io.PrintStream(System.out) {
 
@@ -149,6 +151,16 @@ public class AssemblyWindow extends JPanel {
 		input.setEditable(false);
 		input.setBackground(Color.white);
 
+		JButton stopRunning = new JButton("Stop");
+		stopRunning.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stopCode();
+			}
+
+		});
+
 		// Add Components to this panel.
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createTitledBorder("Code"));
@@ -188,6 +200,14 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		add(new JLabel("AC: "), c);
+
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 4;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		add(runButton, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -251,7 +271,7 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 3;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		add(runButton, c);
+		add(stopRunning, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -285,7 +305,7 @@ public class AssemblyWindow extends JPanel {
 
 			}
 		});
-		
+
 		f = new JDialog();
 		f.setTitle("Graphics Window");
 		f.setDefaultCloseOperation(f.HIDE_ON_CLOSE);
@@ -299,6 +319,7 @@ public class AssemblyWindow extends JPanel {
 		f.setResizable(true);
 		f.setLocationRelativeTo(null);
 		f.setVisible(false);
+		f.addKeyListener(new MKeyListener(this));
 
 	}
 
@@ -341,6 +362,8 @@ public class AssemblyWindow extends JPanel {
 					command = command + "09";
 				} else if (translation.equals("div")) {
 					command = command + "10";
+				} else if (translation.equals("key")) {
+					command = command + "11";
 				} else if (translation.equals("tra")) {
 					command = command + "21";
 				} else if (translation.equals("tre")) {
@@ -418,6 +441,10 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	private void stopCode() {
+		rt.run = false;
+	}
+
 	public void compile() {
 		errors = new HashMap<String, Integer>();
 		pointers.clear();
@@ -464,7 +491,8 @@ public class AssemblyWindow extends JPanel {
 				if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
 
 					int j = 0;
-					for (String line : lines) {
+					for (int x = 0; x < lines.length; x++) {
+						String line = lines[x];
 
 						if (!(j >= 999)) {
 							if (line.charAt(0) == '/') {
@@ -508,6 +536,9 @@ public class AssemblyWindow extends JPanel {
 										command = command + "09";
 									} else if (translation.equals("div")) {
 										command = command + "10";
+									} else if (translation.equals("key")) {
+										command = command + "11";
+										j++;
 									} else if (translation.equals("tra")) {
 										command = command + "21";
 									} else if (translation.equals("tre")) {
@@ -534,6 +565,8 @@ public class AssemblyWindow extends JPanel {
 										command = command + "-25";
 									} else if (translation.equals("cvl")) {
 										command = command + "-26";
+									} else if (translation.equals("dvl")) {
+										command = command + "-27";
 									} else if (translation.equals("lax")) {
 										command = command + "28";
 									} else if (translation.equals("stx")) {
@@ -586,8 +619,8 @@ public class AssemblyWindow extends JPanel {
 									ln = line.length();
 								}
 
-								if (translation.equals("inp") || translation.equals("sta")
-										|| translation.equals("stm")) {
+								if (translation.equals("inp") || translation.equals("sta") || translation.equals("stm")
+										|| translation.equals("key")) {
 									if (!pointers.containsKey(line.substring(3, ln).trim())) {
 										command = command + String.format("%03d", openSpace);
 										pointers.put(line.substring(3, ln).trim(), openSpace);
@@ -637,6 +670,7 @@ public class AssemblyWindow extends JPanel {
 				}
 			}
 		}
+
 	}
 
 	public void clearCode() {
@@ -706,7 +740,7 @@ public class AssemblyWindow extends JPanel {
 									|| translation.equals("cxp") || translation.equals("rep")
 									|| translation.equals("drw") || translation.equals("cyp")
 									|| translation.equals("red") || translation.equals("grn")
-									|| translation.equals("blu")) {
+									|| translation.equals("blu") || translation.equals("key")) {
 
 								if (translation.equals("lal") || translation.equals("lml") || translation.equals("adl")
 										|| translation.equals("sbl") || translation.equals("mpl")
@@ -746,9 +780,6 @@ public class AssemblyWindow extends JPanel {
 		} else {
 			return newCode;
 		}
-
-		System.out.println("\n" + copiedCode);
-
 		return copiedCode;
 	}
 
@@ -771,229 +802,9 @@ public class AssemblyWindow extends JPanel {
 		yReg.setText("");
 		input.setText("");
 
-		Graphics g = graphicsPane.toDraw.getGraphics();
-		g.setColor(Color.black);
-		g.fillRect(0, 0, 1000, 500);
-		g.dispose();
-		graphicsPane.repaint();
+		rt = new RunThread(this);
+		rt.start();
 
-		for (int i = 0; i < 1000; i++) {
-			int curI = i;
-			boolean cont = false;
-			for (int j = i; j < 1000; j++) {
-				if (mdl.getValueAt(j, 1) != "" && mdl.getValueAt(j, 1) != " ") {
-					cont = true;
-				}
-			}
-			if (!cont)
-				return;
-			if (mdl.getValueAt(i, 1) != "" && mdl.getValueAt(i, 1) != " ") {
-				if (((String) mdl.getValueAt(i, 1)).trim().length() >= 5) {
-					int m = Integer.valueOf(((String) mdl.getValueAt(i, 1)).substring(2, 5).trim());
-					int num;
-
-					if (((String) mdl.getValueAt(i, 1)).trim().charAt(0) != '-') {
-						switch (Integer.valueOf(((String) mdl.getValueAt(i, 1)).substring(0, 2))) {
-						case 0:
-							return;
-						case 1:
-							String response = null;
-							while (response == null) {
-								response = JOptionPane.showInputDialog("Enter Input");
-							}
-							mdl.setValueAt(response, m, 1);
-							break;
-						case 2:
-							input.setText("Output: " + ((String) mdl.getValueAt(m, 1)).trim());
-
-							break;
-						case 3:
-							AC.setText(((String) mdl.getValueAt(m, 1)).trim());
-							recentChange = Integer.valueOf(AC.getText());
-							break;
-						case 4:
-
-							mdl.setValueAt(AC.getText(), m, 1);
-
-							break;
-						case 5:
-							MQ.setText(((String) mdl.getValueAt(m, 1)).trim());
-							recentChange = Integer.valueOf(MQ.getText());
-							break;
-						case 6:
-
-							mdl.setValueAt(MQ.getText(), m, 1);
-
-							break;
-						case 7:
-
-							num = Integer.valueOf(AC.getText()) + Integer.valueOf((String) mdl.getValueAt(m, 1));
-							AC.setText(String.valueOf(num).trim());
-							recentChange = num;
-							break;
-						case 8:
-							num = Integer.valueOf(AC.getText()) - Integer.valueOf((String) mdl.getValueAt(m, 1));
-							AC.setText(String.valueOf(num).trim());
-							recentChange = num;
-							break;
-						case 9:
-							num = Integer.valueOf(MQ.getText()) * Integer.valueOf((String) mdl.getValueAt(m, 1));
-							MQ.setText(String.valueOf(num).trim());
-							recentChange = num;
-							break;
-						case 10:
-							num = Integer.valueOf(MQ.getText()) / Integer.valueOf((String) mdl.getValueAt(m, 1));
-							MQ.setText(String.valueOf(num).trim());
-							recentChange = num;
-							break;
-						case 21:
-							i = m - 1;
-							break;
-						case 22:
-							if (recentChange == 0) {
-								i = m - 1;
-							}
-							break;
-						case 23:
-							if (recentChange != 0) {
-								i = m - 1;
-							}
-							break;
-						case 24:
-							if (recentChange < 0) {
-								i = m - 1;
-							}
-							break;
-						case 25:
-							if (recentChange > 0) {
-								i = m - 1;
-							}
-							break;
-						case 26:
-							if (recentChange <= 0) {
-								i = m - 1;
-							}
-							break;
-						case 27:
-							if (recentChange >= 0) {
-								i = m - 1;
-							}
-							break;
-
-						case 28:
-							AC.setText(((String) xReg.getText().trim()));
-							recentChange = Integer.valueOf(xReg.getText());
-							break;
-						case 29:
-							xReg.setText(AC.getText());
-							recentChange = Integer.valueOf(AC.getText());
-							break;
-						case 31:
-							num = Integer.valueOf(xReg.getText()) + 1;
-							xReg.setText(String.valueOf(num));
-							recentChange = num;
-							break;
-						case 32:
-							num = Integer.valueOf(xReg.getText()) - 1;
-							xReg.setText(String.valueOf(num));
-							recentChange = num;
-							break;
-						case 40:
-							graphicsPane.repaint();
-							break;
-						case 41:
-							g = graphicsPane.toDraw.getGraphics();
-							g.setColor(new Color(red, blue, green));
-							System.out.println("Drawing pixel at: " + xPos + "," + yPos + ".");
-							g.fillRect(xPos, yPos, 1, 1);
-							g.dispose();
-							break;
-						case 43:
-							xPos = Integer.valueOf((String) mdl.getValueAt(m, 1));
-							System.out.println(xPos);
-							break;
-						case 44:
-							yPos = Integer.valueOf((String) mdl.getValueAt(m, 1));
-							System.out.println(xPos);
-
-							break;
-						case 45:
-							red = Integer.valueOf((String) mdl.getValueAt(m, 1));
-							break;
-						case 46:
-							blue = Integer.valueOf((String) mdl.getValueAt(m, 1));
-							break;
-						case 47:
-							green = Integer.valueOf((String) mdl.getValueAt(m, 1));
-							break;
-						default:
-							JOptionPane.showMessageDialog(this,
-									"Error on line " + i + ". Please refer to 'File' -> 'Help' for available commands.",
-									"Runtime Error", JOptionPane.WARNING_MESSAGE);
-							return;
-						}
-						// if negative operator
-					} else {
-						m = Integer.valueOf(((String) mdl.getValueAt(i, 1)).substring(3, 6).trim());
-						switch (Integer.valueOf(((String) mdl.getValueAt(i, 1)).substring(1, 3))) {
-						case 21:
-							AC.setText((String.valueOf(m)).trim());
-							recentChange = Integer.valueOf(AC.getText());
-							break;
-						case 22:
-							MQ.setText((String.valueOf(m)).trim());
-							recentChange = Integer.valueOf(MQ.getText());
-							break;
-						case 23:
-
-							num = Integer.valueOf(AC.getText()) + Integer.valueOf((String.valueOf(m)).trim());
-							AC.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(AC.getText());
-							break;
-						case 24:
-							num = Integer.valueOf(AC.getText()) - Integer.valueOf((String.valueOf(m)).trim());
-							AC.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(AC.getText());
-							break;
-						case 25:
-							num = Integer.valueOf(MQ.getText()) * Integer.valueOf((String.valueOf(m)).trim());
-							MQ.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(MQ.getText());
-							break;
-						case 26:
-							num = Integer.valueOf(MQ.getText()) / Integer.valueOf((String.valueOf(m)).trim());
-							MQ.setText(String.valueOf(num).trim());
-							recentChange = Integer.valueOf(MQ.getText());
-							break;
-						case 28:
-							AC.setText(((String) yReg.getText().trim()));
-							recentChange = Integer.valueOf(AC.getText());
-							break;
-						case 29:
-							yReg.setText(AC.getText());
-							recentChange = Integer.valueOf(yReg.getText());
-
-							break;
-						case 31:
-							num = Integer.valueOf(yReg.getText()) + 1;
-							yReg.setText(String.valueOf(num));
-							recentChange = Integer.valueOf(yReg.getText());
-							break;
-						case 32:
-							num = Integer.valueOf(yReg.getText()) - 1;
-							yReg.setText(String.valueOf(num));
-							recentChange = Integer.valueOf(yReg.getText());
-							break;
-						}
-
-					}
-				}
-			}
-			if (stepCode) {
-				JOptionPane.showMessageDialog(this, "Completed step in code on line " + curI + ".", "Stepping",
-						JOptionPane.PLAIN_MESSAGE);
-			}
-		}
 	}
 
 	private int findOpenSpace(String[] array, int reserved) {

@@ -84,6 +84,7 @@ public class AssemblyMachine {
 						"08	sub	08043	co(adr 43) subtracted from AC\r\n" + 
 						"09	mul	09123	MQ multiplied by co(adr 123)\r\n" + 
 						"10	div	10035	MQ divided by co(adr 35)\r\n" + 
+						"11	key	11023	gets current key code and sends it to co(adr 23)\r\n" + 
 						"00	end	00000	programs stops executing\r\n" + 
 						"\r\n" +
 						"Transfer codes" + 
@@ -184,7 +185,6 @@ public class AssemblyMachine {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aw.stepCode = ((JCheckBoxMenuItem) e.getSource()).isSelected();
-				System.out.println(aw.stepCode);
 			}
 
 		});
@@ -283,7 +283,6 @@ public class AssemblyMachine {
 	}
 
 	private static void copy() {
-		System.out.println("Copy");
 		StringSelection stringSelection = new StringSelection(aw.copyCode());
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(stringSelection, null);
