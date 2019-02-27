@@ -25,6 +25,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
 
 public class AssemblyMachine {
 	static JFrame frame;
@@ -208,6 +209,13 @@ public class AssemblyMachine {
 			public void actionPerformed(ActionEvent e) {
 				aw.useNums = true;
 
+				try {
+					aw.fixColors();
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
 			}
 
 		});
@@ -219,6 +227,14 @@ public class AssemblyMachine {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aw.useNums = false;
+
+				try {
+					aw.fixColors();
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
 
 			}
 

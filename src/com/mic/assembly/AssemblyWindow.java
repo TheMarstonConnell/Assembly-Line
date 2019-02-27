@@ -2,6 +2,7 @@ package com.mic.assembly;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,7 +28,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -35,11 +38,26 @@ import javax.swing.text.StyleContext;
 
 public class AssemblyWindow extends JPanel {
 
+	final String[] possibleCommands = { "inp", "out", "lda", "sta", "ldm", "stm", "add", "sub", "mul", "div", "key",
+			"end", "tra", "tre", "tne", "tlt", "tgt", "tle", "tge", "lal", "lml", "adl", "sbl", "mpl", "dvl", "lax",
+			"stx", "inx", "dex", "lay", "sty", "iny", "dey", "gsb", "ret", "def", "rep", "drw", "cxp", "cyp", "red",
+			"grn", "blu" };
+
 	protected JTextPane code;
 	JButton runButton;
 	JButton compileCode;
 	JTable memory;
 	String[] commands;
+
+	// Color formatting
+	final StyleContext cont = StyleContext.getDefaultStyleContext();
+	final AttributeSet commandStyle = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.blue);
+	final AttributeSet pointerStyle = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground,
+			new Color(150, 55, 214));
+	final AttributeSet bold = cont.addAttribute(cont.getEmptySet(), StyleConstants.Bold, true);
+
+	final AttributeSet attrBlack = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
+	DefaultStyledDocument doc;
 
 	// graphics
 	int xPos = 0;
@@ -71,39 +89,32 @@ public class AssemblyWindow extends JPanel {
 	int recentChange = 0;
 	private Color color;
 
-	private void styleText() throws BadLocationException {
-		StyleContext context = new StyleContext();
-		Style style = context.addStyle("comments", null);
-		StyleConstants.setForeground(style, Color.BLACK);
-
-		String codeo = code.getText();
-		code.getDocument().remove(0, code.getDocument().getLength());
-		String[] lines = codeo.split("\n");
-		if (codeo.equals("")) {
-			JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
-					JOptionPane.WARNING_MESSAGE);
-		} else {
-			// When using text opcodes rather than number codes
-			for (int x = 0; x < lines.length; x++) {
-				String line = lines[x];
-				
-				String command = "";
-				
-				int ln = line.indexOf('/');
-				if (ln > 0) {
-					
-					code.getDocument().insertString(0, "", style);
-					
-				}else {
-					code.getDocument().insertString(0, "", style);
-				}
-
+	private boolean checkIfCommand(String com) {
+		for (int i = 0; i < possibleCommands.length; i++) {
+			if (possibleCommands[i].equals(com)) {
+				return true;
 			}
-
 		}
+		return false;
+	}
 
-		styling = false;
+	private int findLastNonWordChar(String text, int index) {
+		while (--index >= 0) {
+			if (String.valueOf(text.charAt(index)).matches("\\W")) {
+				break;
+			}
+		}
+		return index;
+	}
 
+	private int findFirstNonWordChar(String text, int index) {
+		while (index < text.length()) {
+			if (String.valueOf(text.charAt(index)).matches("\\W")) {
+				break;
+			}
+			index++;
+		}
+		return index;
 	}
 
 	public AssemblyWindow() {
@@ -138,39 +149,66 @@ public class AssemblyWindow extends JPanel {
 
 		this.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-		code = new JTextPane();
+		doc = new DefaultStyledDocument() {
+			public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
+				super.insertString(offset, str, a);
 
-		Document d = code.getDocument();
-		d.addDocumentListener(new DocumentListener() {
+				if (!useNums) {
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				if (!styling) {
-					styling = true;
-					try {
-						styleText();
-					} catch (BadLocationException e1) {
-						e1.printStackTrace();
+					String text = getText(0, getLength());
+					int before = findLastNonWordChar(text, offset);
+					if (before < 0)
+						before = 0;
+					int after = findFirstNonWordChar(text, offset + str.length());
+					int wordL = before;
+					int wordR = before;
+
+					while (wordR <= after) {
+						if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
+							if (checkIfCommand(text.substring(wordL, wordR).trim()))
+								setCharacterAttributes(wordL, wordR - wordL, commandStyle, false);
+							else {
+								if (text.substring(wordL, wordR).trim().length() == 3) {
+									setCharacterAttributes(wordL, wordR - wordL, pointerStyle, false);
+									setCharacterAttributes(wordL, wordR - wordL, bold, false);
+
+								} else
+									setCharacterAttributes(wordL, wordR - wordL, attrBlack, false);
+							}
+							wordL = wordR;
+						}
+						wordR++;
 					}
 				}
 			}
 
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				if (!styling) {
-					styling = true;
-					try {
-						styleText();
-					} catch (BadLocationException e1) {
-						e1.printStackTrace();
+			public void remove(int offs, int len) throws BadLocationException {
+				super.remove(offs, len);
+				if (!useNums) {
+
+					String text = getText(0, getLength());
+					int before = findLastNonWordChar(text, offs);
+					if (before < 0)
+						before = 0;
+					int after = findFirstNonWordChar(text, offs);
+
+					if (checkIfCommand(text.substring(before, after).trim())) {
+						setCharacterAttributes(before, after - before, commandStyle, false);
+					} else {
+						if (text.substring(before, after).trim().length() == 3) {
+							setCharacterAttributes(before, after - before, pointerStyle, false);
+							setCharacterAttributes(before, after - before, bold, false);
+
+						} else
+							setCharacterAttributes(before, after - before, attrBlack, false);
 					}
 				}
 			}
+		};
 
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-			}
-		});
+		code = new JTextPane(doc);
+		code.setForeground(Color.black);
+		code.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
 		TextLineNumber tln = new TextLineNumber(code);
 		tln.setMinimumDisplayDigits(3);
@@ -182,6 +220,7 @@ public class AssemblyWindow extends JPanel {
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(400, 300));
 		JLabel tf = new JLabel("OCREG");
+		tf.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		scrollPane.setColumnHeaderView(tf);
 
 		mdl = new DefaultTableModel();
@@ -397,6 +436,37 @@ public class AssemblyWindow extends JPanel {
 		f.setVisible(false);
 		f.addKeyListener(new MKeyListener(this));
 
+	}
+
+	public void fixColors() throws BadLocationException {
+		if (useNums) {
+			doc.setCharacterAttributes(0, code.getDocument().getLength(), attrBlack, false);
+		} else {
+			String text = code.getDocument().getText(0, code.getDocument().getLength());
+			int before = findLastNonWordChar(text, 0);
+			if (before < 0)
+				before = 0;
+			int after = findFirstNonWordChar(text, 0 + text.length());
+			int wordL = before;
+			int wordR = before;
+
+			while (wordR <= after) {
+				if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
+					if (checkIfCommand(text.substring(wordL, wordR).trim()))
+						doc.setCharacterAttributes(wordL, wordR - wordL, commandStyle, false);
+					else {
+						if (text.substring(wordL, wordR).trim().length() == 3) {
+							doc.setCharacterAttributes(wordL, wordR - wordL, pointerStyle, false);
+							doc.setCharacterAttributes(wordL, wordR - wordL, bold, false);
+
+						} else
+							doc.setCharacterAttributes(wordL, wordR - wordL, attrBlack, false);
+					}
+					wordL = wordR;
+				}
+				wordR++;
+			}
+		}
 	}
 
 	private void fixCode() {
@@ -797,27 +867,7 @@ public class AssemblyWindow extends JPanel {
 							translation = line.trim().substring(0, 3);
 							complete = true;
 							boolean lit = false;
-							if (translation.equals("inp") || translation.equals("out") || translation.equals("lda")
-									|| translation.equals("sta") || translation.equals("ldm")
-									|| translation.equals("stm") || translation.equals("add")
-									|| translation.equals("sub") || translation.equals("mul")
-									|| translation.equals("div") || translation.equals("tra")
-									|| translation.equals("tre") || translation.equals("tne")
-									|| translation.equals("tlt") || translation.equals("tgt")
-									|| translation.equals("tle") || translation.equals("tge")
-									|| translation.equals("lal") || translation.equals("lml")
-									|| translation.equals("adl") || translation.equals("sbl")
-									|| translation.equals("mpl") || translation.equals("cvl")
-									|| translation.equals("lax") || translation.equals("stx")
-									|| translation.equals("inx") || translation.equals("dex")
-									|| translation.equals("lay") || translation.equals("sty")
-									|| translation.equals("iny") || translation.equals("dey")
-									|| translation.equals("ret") || translation.equals("def")
-									|| translation.equals("end") || translation.equals("gsb")
-									|| translation.equals("cxp") || translation.equals("rep")
-									|| translation.equals("drw") || translation.equals("cyp")
-									|| translation.equals("red") || translation.equals("grn")
-									|| translation.equals("blu") || translation.equals("key")) {
+							if (checkIfCommand(translation)) {
 
 								if (translation.equals("lal") || translation.equals("lml") || translation.equals("adl")
 										|| translation.equals("sbl") || translation.equals("mpl")
