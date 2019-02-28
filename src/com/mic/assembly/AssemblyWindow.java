@@ -710,11 +710,9 @@ public class AssemblyWindow extends JPanel {
 										command = command + "-24";
 									} else if (translation.equals("mpl")) {
 										command = command + "-25";
-									} else if (translation.equals("cvl")) {
-										command = command + "-26";
 									} else if (translation.equals("dvl")) {
-										command = command + "-27";
-									} else if (translation.equals("lax")) {
+										command = command + "-26";
+									}else if (translation.equals("lax")) {
 										command = command + "28";
 									} else if (translation.equals("stx")) {
 										command = command + "29";

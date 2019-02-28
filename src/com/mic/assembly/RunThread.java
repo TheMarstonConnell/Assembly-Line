@@ -52,8 +52,13 @@ public class RunThread extends Thread {
 								aw.mdl.setValueAt(response, m, 1);
 								break;
 							case 2:
-								aw.input.setText("Output: " + ((String) aw.mdl.getValueAt(m, 1)).trim());
+								if (aw.input.getText().equals("")) {
+									aw.input.setText(((String) aw.mdl.getValueAt(m, 1)).trim());
+								} else {
+									aw.input.setText(
+											aw.input.getText() + ", " + ((String) aw.mdl.getValueAt(m, 1)).trim());
 
+								}
 								break;
 							case 3:
 								aw.AC.setText(((String) aw.mdl.getValueAt(m, 1)).trim());
