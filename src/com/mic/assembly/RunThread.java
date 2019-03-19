@@ -98,10 +98,16 @@ public class RunThread extends Thread {
 								aw.recentChange = num;
 								break;
 							case 10:
-								num = Integer.valueOf(aw.MQ.getText())
-										/ Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
-								aw.MQ.setText(String.valueOf(num).trim());
-								aw.recentChange = num;
+								try {
+									num = Integer.valueOf(aw.MQ.getText())
+											/ Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
+									aw.MQ.setText(String.valueOf(num).trim());
+									aw.recentChange = num;
+								}catch(NumberFormatException n) {
+									
+									aw.showError("Runtime Error", "Number format exception at index: " + m);
+								}
+								
 								break;
 							case 11:
 								aw.mdl.setValueAt(String.valueOf(aw.currentKeyDown), m, 1);

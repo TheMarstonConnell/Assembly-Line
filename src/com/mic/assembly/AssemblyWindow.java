@@ -442,6 +442,11 @@ public class AssemblyWindow extends JPanel {
 		f.addKeyListener(new MKeyListener(this));
 
 	}
+	
+	public void showError(String title, String message) {
+		JOptionPane.showMessageDialog(this, message, title,
+				JOptionPane.ERROR_MESSAGE);
+	}
 
 	public void fixColors() throws BadLocationException {
 		if (useNums) {
