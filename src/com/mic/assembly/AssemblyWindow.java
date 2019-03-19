@@ -210,8 +210,13 @@ public class AssemblyWindow extends JPanel {
 		code.setForeground(Color.black);
 		code.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
-		TextLineNumber tln = new TextLineNumber(code);
+		LineHighlightPane l = new LineHighlightPane(code);
+		
+		TextLineNumber tln = new TextLineNumber(l);
 		tln.setMinimumDisplayDigits(3);
+		
+		
+		code.setUI(l);
 
 		runButton = new JButton("Run Program");
 		compileCode = new JButton("Compile Program");
