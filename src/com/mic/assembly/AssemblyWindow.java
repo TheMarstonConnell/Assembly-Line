@@ -36,28 +36,20 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import com.mic.lib.IDETextPane;
+
 public class AssemblyWindow extends JPanel {
 
-	final String[] possibleCommands = { "inp", "out", "lda", "sta", "ldm", "stm", "add", "sub", "mul", "div", "key",
+	private final String[] possibleCommands = { "inp", "out", "lda", "sta", "ldm", "stm", "add", "sub", "mul", "div", "key",
 			"end", "tra", "tre", "tne", "tlt", "tgt", "tle", "tge", "lal", "lml", "adl", "sbl", "mpl", "dvl", "lax",
 			"stx", "inx", "dex", "lay", "sty", "iny", "dey", "gsb", "ret", "def", "rep", "drw", "cxp", "cyp", "red",
 			"grn", "blu" };
 
-	protected JTextPane code;
-	JButton runButton;
-	JButton compileCode;
-	JTable memory;
-	String[] commands;
-
-	// Color formatting
-	final StyleContext cont = StyleContext.getDefaultStyleContext();
-	final AttributeSet commandStyle = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.blue);
-	final AttributeSet pointerStyle = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground,
-			new Color(150, 55, 214));
-	final AttributeSet bold = cont.addAttribute(cont.getEmptySet(), StyleConstants.Bold, true);
-
-	final AttributeSet attrBlack = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
-	DefaultStyledDocument doc;
+	protected IDETextPane code;
+	private JButton runButton;
+	private JButton compileCode;
+	private JTable memory;
+	private String[] commands;
 
 	// graphics
 	int xPos = 0;
@@ -65,26 +57,27 @@ public class AssemblyWindow extends JPanel {
 	int red = 255;
 	int blue = 255;
 	int green = 255;
-	BufferedImage graphics;
+	private BufferedImage graphics;
 	DrawingPane graphicsPane;
 
 	public int currentKeyDown = 0;
 
+	public JLabel codeTitle;
+	public JScrollPane scrollPane;
+	
 	JTextField input;
-	JDialog f = null;
+	private JDialog f = null;
 	JTextField AC;
 	JTextField MQ;
 	JTextField xReg;
 	JTextField yReg;
-	String inputText = "";
-	RunThread rt;
+	private RunThread rt;
 	DefaultTableModel mdl;
 	public boolean useNums = true;
 	public boolean stepCode = false;
-	HashMap<String, Integer> errors;
-	boolean styling = false;
+	private HashMap<String, Integer> errors;
 
-	HashMap<String, Integer> pointers;
+	private HashMap<String, Integer> pointers;
 
 	int recentChange = 0;
 	private Color color;
@@ -96,25 +89,6 @@ public class AssemblyWindow extends JPanel {
 			}
 		}
 		return false;
-	}
-
-	private int findLastNonWordChar(String text, int index) {
-		while (--index >= 0) {
-			if (String.valueOf(text.charAt(index)).matches("\\W")) {
-				break;
-			}
-		}
-		return index;
-	}
-
-	private int findFirstNonWordChar(String text, int index) {
-		while (index < text.length()) {
-			if (String.valueOf(text.charAt(index)).matches("\\W")) {
-				break;
-			}
-			index++;
-		}
-		return index;
 	}
 
 	public AssemblyWindow() {
@@ -149,84 +123,20 @@ public class AssemblyWindow extends JPanel {
 
 		this.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-		doc = new DefaultStyledDocument() {
-			public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
-				super.insertString(offset, str, a);
+		code = new IDETextPane(possibleCommands);
 
-				if (!useNums) {
-
-					String text = getText(0, getLength());
-					int before = findLastNonWordChar(text, offset);
-					if (before < 0)
-						before = 0;
-					int after = findFirstNonWordChar(text, offset + str.length());
-					int wordL = before;
-					int wordR = before;
-
-					while (wordR <= after) {
-						if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
-							if (checkIfCommand(text.substring(wordL, wordR).trim()))
-								setCharacterAttributes(wordL, wordR - wordL, commandStyle, false);
-							else {
-								if (text.substring(wordL, wordR).trim().length() == 3) {
-									setCharacterAttributes(wordL, wordR - wordL, pointerStyle, false);
-									setCharacterAttributes(wordL, wordR - wordL, bold, false);
-
-								} else
-									setCharacterAttributes(wordL, wordR - wordL, attrBlack, false);
-							}
-							wordL = wordR;
-						}
-						wordR++;
-					}
-				}
-			}
-
-			public void remove(int offs, int len) throws BadLocationException {
-				super.remove(offs, len);
-				if (!useNums) {
-
-					String text = getText(0, getLength());
-					int before = findLastNonWordChar(text, offs);
-					if (before < 0)
-						before = 0;
-					int after = findFirstNonWordChar(text, offs);
-
-					if (checkIfCommand(text.substring(before, after).trim())) {
-						setCharacterAttributes(before, after - before, commandStyle, false);
-					} else {
-						if (text.substring(before, after).trim().length() == 3) {
-							setCharacterAttributes(before, after - before, pointerStyle, false);
-							setCharacterAttributes(before, after - before, bold, false);
-
-						} else
-							setCharacterAttributes(before, after - before, attrBlack, false);
-					}
-				}
-			}
-		};
-
-		code = new JTextPane(doc);
-		code.setForeground(Color.black);
-		code.setFont(new Font("Monospaced", Font.PLAIN, 12));
-
-		LineHighlightPane l = new LineHighlightPane(code);
-		
-		TextLineNumber tln = new TextLineNumber(l);
+		TextLineNumber tln = new TextLineNumber(code.highLighter);
 		tln.setMinimumDisplayDigits(3);
-		
-		
-		code.setUI(l);
 
 		runButton = new JButton("Run Program");
 		compileCode = new JButton("Compile Program");
-		JScrollPane scrollPane = new JScrollPane(code);
+		scrollPane = new JScrollPane(code);
 		scrollPane.setRowHeaderView(tln);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(400, 300));
-		JLabel tf = new JLabel("OCREG");
-		tf.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		scrollPane.setColumnHeaderView(tf);
+		codeTitle = new JLabel("Machine Language");
+		codeTitle.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		scrollPane.setColumnHeaderView(codeTitle);
 
 		mdl = new DefaultTableModel();
 		mdl.addColumn("Register");
@@ -442,41 +352,9 @@ public class AssemblyWindow extends JPanel {
 		f.addKeyListener(new MKeyListener(this));
 
 	}
-	
+
 	public void showError(String title, String message) {
-		JOptionPane.showMessageDialog(this, message, title,
-				JOptionPane.ERROR_MESSAGE);
-	}
-
-	public void fixColors() throws BadLocationException {
-		if (useNums) {
-			doc.setCharacterAttributes(0, code.getDocument().getLength(), attrBlack, false);
-		} else {
-			String text = code.getDocument().getText(0, code.getDocument().getLength());
-			int before = findLastNonWordChar(text, 0);
-			if (before < 0)
-				before = 0;
-			int after = findFirstNonWordChar(text, 0 + text.length());
-			int wordL = before;
-			int wordR = before;
-
-			while (wordR <= after) {
-				if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
-					if (checkIfCommand(text.substring(wordL, wordR).trim()))
-						doc.setCharacterAttributes(wordL, wordR - wordL, commandStyle, false);
-					else {
-						if (text.substring(wordL, wordR).trim().length() == 3) {
-							doc.setCharacterAttributes(wordL, wordR - wordL, pointerStyle, false);
-							doc.setCharacterAttributes(wordL, wordR - wordL, bold, false);
-
-						} else
-							doc.setCharacterAttributes(wordL, wordR - wordL, attrBlack, false);
-					}
-					wordL = wordR;
-				}
-				wordR++;
-			}
-		}
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 
 	private void fixCode() {
@@ -486,7 +364,7 @@ public class AssemblyWindow extends JPanel {
 			int oldIndex = entry.getValue();
 			String line = entry.getKey();
 
-			int ln = line.indexOf('/');
+			int ln = line.indexOf('#');
 			if (ln < 0) {
 				ln = line.length();
 			}
@@ -578,7 +456,7 @@ public class AssemblyWindow extends JPanel {
 
 			}
 
-			ln = line.indexOf('/');
+			ln = line.indexOf('#');
 			if (ln < 0) {
 				ln = line.length();
 			}
@@ -620,16 +498,18 @@ public class AssemblyWindow extends JPanel {
 				int p = 0;
 				for (String line : lines) {
 					if (!(j >= 999)) {
-						if (line.charAt(0) == '/') {
+						if (line.charAt(0) == '#') {
+
 							line = " ";
+
 						}
 
-						int ln = line.indexOf('/');
+						int ln = line.indexOf('#');
 						if (ln < 0) {
 							ln = line.length();
 						}
 
-						commands[j] = line.substring(0, ln);
+						commands[j] = line.substring(0, ln).replaceAll("[^\\d]", "");
 
 					}
 					j++;
@@ -651,7 +531,7 @@ public class AssemblyWindow extends JPanel {
 						String line = lines[x];
 
 						if (!(j >= 999)) {
-							if (line.charAt(0) == '/') {
+							if (line.charAt(0) == '#') {
 								line = "";
 							}
 
@@ -722,7 +602,7 @@ public class AssemblyWindow extends JPanel {
 										command = command + "-25";
 									} else if (translation.equals("dvl")) {
 										command = command + "-26";
-									}else if (translation.equals("lax")) {
+									} else if (translation.equals("lax")) {
 										command = command + "28";
 									} else if (translation.equals("stx")) {
 										command = command + "29";
@@ -769,7 +649,7 @@ public class AssemblyWindow extends JPanel {
 
 								}
 
-								int ln = line.indexOf('/');
+								int ln = line.indexOf('#');
 								if (ln < 0) {
 									ln = line.length();
 								}
@@ -840,6 +720,7 @@ public class AssemblyWindow extends JPanel {
 		g.fillRect(0, 0, 1000, 500);
 		g.dispose();
 		graphicsPane.repaint();
+		code.update();
 		for (int x = 0; x < commands.length; x++) {
 			commands[x] = "";
 		}
@@ -861,7 +742,7 @@ public class AssemblyWindow extends JPanel {
 					String backupLine = line;
 					String newLine = "";
 
-					if (line.charAt(0) == '/') {
+					if (line.charAt(0) == '#') {
 						line = "";
 					}
 
@@ -882,7 +763,7 @@ public class AssemblyWindow extends JPanel {
 										|| translation.equals("dvl")) {
 									lit = true;
 								}
-								int ln = line.indexOf('/');
+								int ln = line.indexOf('#');
 								if (ln < 0) {
 									ln = line.length();
 								}
@@ -892,10 +773,10 @@ public class AssemblyWindow extends JPanel {
 									sub = "=" + sub;
 								}
 
-								if (backupLine.indexOf('/') >= 0) {
+								if (backupLine.indexOf('#') >= 0) {
 
 									newLine = newLine + "\t" + translation + "\t" + sub + "\t"
-											+ backupLine.substring(backupLine.indexOf('/')).trim();
+											+ backupLine.substring(backupLine.indexOf('#')).trim();
 								} else {
 									newLine = newLine + "\t" + translation + "\t" + sub + "\t";
 								}

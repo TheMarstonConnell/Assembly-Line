@@ -208,13 +208,10 @@ public class AssemblyMachine {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aw.useNums = true;
+				aw.codeTitle.setText("Machine Language");
+				aw.scrollPane.setColumnHeaderView(aw.codeTitle);
 
-				try {
-					aw.fixColors();
-				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				aw.code.update();
 
 			}
 
@@ -227,13 +224,9 @@ public class AssemblyMachine {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aw.useNums = false;
-
-				try {
-					aw.fixColors();
-				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				aw.codeTitle.setText("Assembler");
+				aw.scrollPane.setColumnHeaderView(aw.codeTitle);
+				aw.code.update();
 
 
 			}

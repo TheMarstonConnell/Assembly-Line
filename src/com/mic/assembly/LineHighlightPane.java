@@ -34,7 +34,7 @@ public class LineHighlightPane extends BasicTextPaneUI {
 			Rectangle rect = modelToView(tc, tc.getCaretPosition());
 			int y = rect.y;
 			int h = rect.height;
-			g.setColor(new Color(179, 206, 249));
+			g.setColor(new Color(232, 242, 254));
 			g.fillRect(0, y, tc.getWidth(), h);
 		} catch (BadLocationException ex) {
 			ex.printStackTrace();
