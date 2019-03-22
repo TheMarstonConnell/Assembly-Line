@@ -4,6 +4,8 @@ import javax.swing.table.AbstractTableModel;
 
 public class MemoryTableModel extends AbstractTableModel {
 
+	private static final long serialVersionUID = 1761483453825574831L;
+
 	@Override
 	public int getColumnCount() {
 		// TODO Auto-generated method stub

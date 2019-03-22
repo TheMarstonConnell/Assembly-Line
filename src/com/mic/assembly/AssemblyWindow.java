@@ -8,42 +8,31 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Document;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 
 import com.mic.lib.IDETextPane;
 
 public class AssemblyWindow extends JPanel {
 
-	private final String[] possibleCommands = { "inp", "out", "lda", "sta", "ldm", "stm", "add", "sub", "mul", "div", "key",
-			"end", "tra", "tre", "tne", "tlt", "tgt", "tle", "tge", "lal", "lml", "adl", "sbl", "mpl", "dvl", "lax",
-			"stx", "inx", "dex", "lay", "sty", "iny", "dey", "gsb", "ret", "def", "rep", "drw", "cxp", "cyp", "red",
-			"grn", "blu" };
+	private static final long serialVersionUID = -7118218294554300449L;
+
+	private final String[] possibleCommands = { "inp", "out", "lda", "sta", "ldm", "stm", "add", "sub", "mul", "div",
+			"key", "end", "tra", "tre", "tne", "tlt", "tgt", "tle", "tge", "lal", "lml", "adl", "sbl", "mpl", "dvl",
+			"lax", "stx", "inx", "dex", "lay", "sty", "iny", "dey", "gsb", "ret", "def", "rep", "drw", "cxp", "cyp",
+			"red", "grn", "blu" };
 
 	protected IDETextPane code;
 	private JButton runButton;
@@ -57,14 +46,13 @@ public class AssemblyWindow extends JPanel {
 	int red = 255;
 	int blue = 255;
 	int green = 255;
-	private BufferedImage graphics;
 	DrawingPane graphicsPane;
 
 	public int currentKeyDown = 0;
 
 	public JLabel codeTitle;
 	public JScrollPane scrollPane;
-	
+
 	JTextField input;
 	private JDialog f = null;
 	JTextField AC;
@@ -80,7 +68,6 @@ public class AssemblyWindow extends JPanel {
 	private HashMap<String, Integer> pointers;
 
 	int recentChange = 0;
-	private Color color;
 
 	private boolean checkIfCommand(String com) {
 		for (int i = 0; i < possibleCommands.length; i++) {
@@ -161,8 +148,6 @@ public class AssemblyWindow extends JPanel {
 		g.fillRect(0, 0, 400, 200);
 		g.dispose();
 		graphicsPane.repaint();
-		this.color = Color.white;
-
 		AC = new JTextField();
 		AC.setEditable(false);
 		AC.setBackground(Color.white);
@@ -182,7 +167,7 @@ public class AssemblyWindow extends JPanel {
 		input.setEditable(false);
 		input.setBackground(Color.white);
 
-		JButton stopRunning = new JButton("Stop");
+		JButton stopRunning = new JButton("      Stop      ");
 		stopRunning.addActionListener(new ActionListener() {
 
 			@Override
@@ -230,7 +215,10 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		add(new JLabel("AC: "), c);
+		JLabel j = new JLabel("AC: ");
+		j.setToolTipText("<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
+		j.setHorizontalAlignment(JLabel.CENTER);
+		add(j, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -246,6 +234,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		
+		AC.setToolTipText("<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
 		add(AC, c);
 
 		c.ipady = 0;
@@ -254,7 +244,10 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		add(new JLabel("MQ: "), c);
+		j = new JLabel("MQ: ");
+		j.setToolTipText("<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/sdiv - Divide MQ by</html>");
+		j.setHorizontalAlignment(JLabel.CENTER);
+		add(j, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -262,6 +255,7 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		MQ.setToolTipText("<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/div - Divide MQ by</html>");
 		add(MQ, c);
 
 		c.ipady = 0;
@@ -270,7 +264,10 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		add(new JLabel("X Register: "), c);
+		j = new JLabel("X Register: ");
+		j.setToolTipText("<html>28/lax - Load AC into X<br>29/sxm - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
+		j.setHorizontalAlignment(JLabel.CENTER);
+		add(j, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -278,6 +275,7 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		xReg.setToolTipText("<html>28/lax - Load AC into X<br>29/stx - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
 		add(xReg, c);
 
 		c.ipady = 0;
@@ -286,7 +284,10 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		add(new JLabel("Y Register: "), c);
+		j = new JLabel("Y Register: ");
+		j.setToolTipText("<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
+		j.setHorizontalAlignment(JLabel.CENTER);
+		add(j, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -294,6 +295,7 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		yReg.setToolTipText("<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
 		add(yReg, c);
 
 		c.ipady = 0;
@@ -310,7 +312,9 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 3;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		add(new JLabel("Output: "), c);
+		j = new JLabel("Output: ");
+		j.setHorizontalAlignment(JLabel.CENTER);
+		add(j, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -350,6 +354,7 @@ public class AssemblyWindow extends JPanel {
 		f.setLocationRelativeTo(null);
 		f.setVisible(false);
 		f.addKeyListener(new MKeyListener(this));
+
 
 	}
 
@@ -495,7 +500,6 @@ public class AssemblyWindow extends JPanel {
 				// When using number opcodes and registries
 
 				int j = 0;
-				int p = 0;
 				for (String line : lines) {
 					if (!(j >= 999)) {
 						if (line.charAt(0) == '#') {
@@ -508,12 +512,16 @@ public class AssemblyWindow extends JPanel {
 						if (ln < 0) {
 							ln = line.length();
 						}
-
-						commands[j] = line.substring(0, ln).replaceAll("[^\\d]", "");
-
+						boolean neg = false;
+						if (line.trim().charAt(0) == '-') {
+							neg = true;
+						}
+						commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
+						if (neg) {
+							line = "-" + line;
+						}
 					}
 					j++;
-					p++;
 				}
 
 				for (int i = 0; i < commands.length; i++) {
@@ -846,27 +854,6 @@ public class AssemblyWindow extends JPanel {
 		}
 		return -1;
 
-	}
-
-	private int findOpenSpace(String[] array) {
-		for (int x = 0; x < array.length; x++) {
-			if (array[x].trim().equals("")) {
-				if (!pointers.isEmpty()) {
-					for (Entry<String, Integer> entry : pointers.entrySet()) {
-						boolean contains = false;
-						if (entry.getValue().equals(x)) {
-							contains = true;
-						}
-						if (!contains)
-							return x;
-
-					}
-				} else {
-					return 0;
-				}
-			}
-		}
-		return -1;
 	}
 
 }

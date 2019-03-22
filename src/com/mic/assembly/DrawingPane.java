@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public class DrawingPane extends JPanel {
+	
+	private static final long serialVersionUID = 2940823515672424561L;
 	BufferedImage toDraw;
 
 	public DrawingPane() {

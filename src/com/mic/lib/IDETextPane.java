@@ -8,7 +8,6 @@ import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
@@ -16,9 +15,10 @@ import com.mic.assembly.LineHighlightPane;
 
 public class IDETextPane extends JTextPane {
 
-	int newestLine = 0;
-	int lastNewLine = 0;
-	String[] possibleCommands;
+	
+	private static final long serialVersionUID = 1L;
+	private int newestLine = 0;
+	private String[] possibleCommands;
 
 	final StyleContext cont = StyleContext.getDefaultStyleContext();
 	final AttributeSet COMMAND = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.blue);
@@ -38,6 +38,12 @@ public class IDETextPane extends JTextPane {
 		setFont(new Font("Monospaced", Font.PLAIN, 12));
 		this.possibleCommands = commands;
 		setDocument(new DefaultStyledDocument() {
+
+			/**
+			 * @author Marston Connell
+			 *
+			 */
+			private static final long serialVersionUID = 1L;
 
 			public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
 				super.insertString(offset, str, a);
@@ -62,7 +68,6 @@ public class IDETextPane extends JTextPane {
 		try {
 			fixColors();
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -96,7 +101,6 @@ public class IDETextPane extends JTextPane {
 	}
 
 	private void fixColors() throws BadLocationException {
-		lastNewLine = 0;
 		newestLine = 0;
 		DefaultStyledDocument doc = (DefaultStyledDocument) this.getDocument();
 
@@ -110,7 +114,6 @@ public class IDETextPane extends JTextPane {
 		int wordR = before;
 		while (wordR < after) {
 			if (text.charAt(wordR) == '\n') {
-				lastNewLine = newestLine;
 				newestLine = wordR;
 			}
 
@@ -118,23 +121,26 @@ public class IDETextPane extends JTextPane {
 				if (wordR > newestLine)
 					if (text.substring(newestLine, wordR + 1).contains("#")) {
 
-						doc.setCharacterAttributes(wordL, (wordR + 1) - wordL, COMMENT, false);
+						doc.setCharacterAttributes(wordL, (wordR + 1) - wordL, COMMENT, true);
 						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
 
 					} else if(!Pattern.compile( "[0-9]" ).matcher( text.substring(wordL, wordR + 1).trim()  ).find()){
 						if (checkIfCommand(text.substring(wordL, wordR + 1).trim())) {
-							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, COMMAND, false);
+							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, COMMAND, true);
 							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
 						} else {
 							if (text.substring(wordL, wordR + 1).trim().length() == 3){
-								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, POINTER, false);
+								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, POINTER, true);
 								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BOLD, false);
 
-							} 
+							} else {
+								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BASIC, true);
+								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
+							}
 
 						}
 					}else {
-						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BASIC, false);
+						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BASIC, true);
 						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
 					}
 				wordL = wordR;

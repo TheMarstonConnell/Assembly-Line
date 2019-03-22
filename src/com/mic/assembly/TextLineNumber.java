@@ -1,7 +1,6 @@
 package com.mic.assembly;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.beans.*;
 import java.util.HashMap;
 import javax.swing.*;
@@ -14,11 +13,17 @@ import javax.swing.text.*;
  * component must use the same line height for each line. TextLineNumber
  * supports wrapped lines and will highlight the line number of the current line
  * in the text component.
- * 
+ * <br><br>
  * This class was designed to be used as a component added to the row header of
  * a JScrollPane.
+ * <br><br>
+ * Edited from: https://tips4java.wordpress.com/2009/05/23/text-component-line-number/
+ * @author Rob Camick
+ * @author Marston Connell
  */
 public class TextLineNumber extends JPanel implements CaretListener, DocumentListener, PropertyChangeListener {
+	
+	private static final long serialVersionUID = 684813979540376147L;
 	public final static float LEFT = 0.0f;
 	public final static float CENTER = 0.5f;
 	public final static float RIGHT = 1.0f;
@@ -29,8 +34,7 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 
 	// Text component this TextTextLineNumber component is in sync with
 
-	private LineHighlightPane comp;
-	JTextPane component;
+	private JTextPane component;
 
 	// Properties that can be changed
 
@@ -67,8 +71,6 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 	 *                             minimum width of the component
 	 */
 	public TextLineNumber(LineHighlightPane comp, int minimumDisplayDigits) {
-		this.comp = comp;
-
 		component = comp.tc;
 		
 		setFont(component.getFont());
@@ -261,7 +263,6 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 	}
 
 	private Color getLineBackground() {
-		// TODO Auto-generated method stub
 		return Color.gray;
 	}
 

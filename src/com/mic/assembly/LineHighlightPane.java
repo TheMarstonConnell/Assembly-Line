@@ -9,7 +9,6 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.plaf.basic.BasicTextPaneUI;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 
 public class LineHighlightPane extends BasicTextPaneUI {
 	JTextPane tc;
