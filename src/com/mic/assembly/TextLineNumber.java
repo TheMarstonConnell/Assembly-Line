@@ -392,9 +392,6 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 	 * the lines numbers will also change.
 	 */
 	private void documentChanged() {
-		// View of the component has not been updated at the time
-		// the DocumentEvent is fired
-
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -413,9 +410,6 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 		});
 	}
 
-	//
-	// Implement PropertyChangeListener interface
-	//
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getNewValue() instanceof Font) {

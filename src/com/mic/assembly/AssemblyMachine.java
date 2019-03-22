@@ -28,6 +28,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+/**
+ * The main emulator for the entire machine.
+ * 
+ * @author Marston Connell
+ *
+ */
 public class AssemblyMachine {
 	static JFrame frame;
 	static CardLayout cl;
@@ -36,6 +42,12 @@ public class AssemblyMachine {
 	static AssemblyWindow aw;
 	static JDialog helpFrame;
 
+	/**
+	 * Initializes Menu bar for frame.
+	 * 
+	 * @author Marston Connell
+	 * @return JMenuBar
+	 */
 	private static JMenuBar createMenu() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
@@ -286,6 +298,11 @@ public class AssemblyMachine {
 		return menuBar;
 	}
 
+	
+	/**
+	 * Creates and displays layout to display including frame.
+	 * @author Marston Connell
+	 */
 	private static void createAndShowGUI() {
 
 		// Create and set up the window.
@@ -318,11 +335,20 @@ public class AssemblyMachine {
 
 	}
 
+	/**
+	 * Program starting point.
+	 * @author Marston Connell
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		createAndShowGUI();
 
 	}
 
+	/**
+	 * Copy wrapper for Window.
+	 * @author Marston Connell
+	 */
 	private static void copy() {
 		StringSelection stringSelection = new StringSelection(aw.copyCode());
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

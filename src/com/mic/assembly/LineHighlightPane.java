@@ -10,12 +10,22 @@ import javax.swing.event.CaretListener;
 import javax.swing.plaf.basic.BasicTextPaneUI;
 import javax.swing.text.BadLocationException;
 
+/**
+ * Highlights current line in the text pane.
+ * @author Marston Connell
+ *
+ */
 public class LineHighlightPane extends BasicTextPaneUI {
 	JTextPane tc;
 
-	public LineHighlightPane(JTextPane t) {
+	/**
+	 * Initializes line highlighting pane.
+	 * @author Marston Connell
+	 * @param JTextPane pane
+	 */
+	public LineHighlightPane(JTextPane pane) {
 
-		tc = t;
+		tc = pane;
 		tc.addCaretListener(new CaretListener() {
 			public void caretUpdate(CaretEvent e) {
 
@@ -25,6 +35,11 @@ public class LineHighlightPane extends BasicTextPaneUI {
 	}
 
 	@Override
+	/**
+	 * Paints line.
+	 * 
+	 * @author Marston Connell
+	 */
 	public void paintBackground(Graphics g) {
 
 		super.paintBackground(g);

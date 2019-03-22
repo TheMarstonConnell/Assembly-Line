@@ -25,6 +25,11 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mic.lib.IDETextPane;
 
+/**
+ * The panel that displays and runs all editing and outputs from program.
+ * @author Marston Connell
+ *
+ */
 public class AssemblyWindow extends JPanel {
 
 	private static final long serialVersionUID = -7118218294554300449L;
@@ -69,6 +74,12 @@ public class AssemblyWindow extends JPanel {
 
 	int recentChange = 0;
 
+	/**
+	 * Checks if string is an available command.
+	 * @author Marston Connell
+	 * @param com
+	 * @return true if string is command.
+	 */
 	private boolean checkIfCommand(String com) {
 		for (int i = 0; i < possibleCommands.length; i++) {
 			if (possibleCommands[i].equals(com)) {
@@ -78,9 +89,16 @@ public class AssemblyWindow extends JPanel {
 		return false;
 	}
 
+	/**
+	 * Initializes the panel for inside the frame with all the buttons and other inputs/outputs.
+	 * @author Marston Connell
+	 */
 	public AssemblyWindow() {
 		super(new GridBagLayout());
 
+		/**
+		 * Custom debug stream.
+		 */
 		System.setOut(new java.io.PrintStream(System.out) {
 
 			private StackTraceElement getCallSite() {
@@ -358,10 +376,20 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	/**
+	 * Displays error wrapper for other classes.
+	 * @author Marston Connell
+	 * @param title
+	 * @param message
+	 */
 	public void showError(String title, String message) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 
+	/**
+	 * Fixes refactors and pointer errors.
+	 * @author Marston Connell
+	 */
 	private void fixCode() {
 
 		for (Entry<String, Integer> entry : errors.entrySet()) {
@@ -480,10 +508,18 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	/**
+	 * Stops currently running code from running any longer.
+	 * @author Marston Connell
+	 */
 	private void stopCode() {
 		rt.run = false;
 	}
 
+	/**
+	 * Compiles code into Machine Code and inserts it into 'memory'.
+	 * @author Marston Connell
+	 */
 	public void compile() {
 		errors = new HashMap<String, Integer>();
 		pointers.clear();
@@ -716,6 +752,10 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	/**
+	 * Wipes code from text pane and all other info in registries.
+	 * @author Marston Connell
+	 */
 	public void clearCode() {
 		AC.setText("");
 		MQ.setText("");
@@ -737,6 +777,11 @@ public class AssemblyWindow extends JPanel {
 		}
 	}
 
+	/**
+	 * Reformats code to be copied to use in the 'Mythical Machine' emulator, or just this one.
+	 * @author Marston Connell
+	 * @return All reformatted code
+	 */
 	public String copyCode() {
 		String newCode = code.getText();
 		String copiedCode = "";
@@ -807,17 +852,29 @@ public class AssemblyWindow extends JPanel {
 		return copiedCode;
 	}
 
+	/**
+	 * Refactors code.
+	 * @author Marston Connell
+	 */
 	public void cleanUp() {
 		String newCode = copyCode();
 		code.setText(newCode.replaceAll("=", ""));
 	}
 
+	/**
+	 * Displays graphics window without double screens.
+	 * @author Marston Connell
+	 */
 	public void displayGraphics() {
 		if (!f.isActive()) {
 			f.setVisible(true);
 		}
 	}
 
+	/**
+	 * Starts code running thread.
+	 * @author Marston Connell
+	 */
 	private void runCode() {
 
 		AC.setText("");
@@ -825,12 +882,21 @@ public class AssemblyWindow extends JPanel {
 		xReg.setText("");
 		yReg.setText("");
 		input.setText("");
-
+		red = 255;
+		blue = 255;
+		green = 255;
 		rt = new RunThread(this);
 		rt.start();
 
 	}
 
+	/**
+	 * Finds next open space in memory without interfering with pointers.
+	 * @author Marston Connell
+	 * @param array
+	 * @param reserved
+	 * @return index of free space in memory
+	 */
 	private int findOpenSpace(String[] array, int reserved) {
 		for (int x = 0; x < array.length; x++) {
 			if (x != reserved) {

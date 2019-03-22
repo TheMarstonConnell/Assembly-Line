@@ -13,9 +13,14 @@ import javax.swing.text.StyleContext;
 
 import com.mic.assembly.LineHighlightPane;
 
+/**
+ * The styled TextPane that highlights syntax and colours comments.
+ * 
+ * @author Marston Connell
+ *
+ */
 public class IDETextPane extends JTextPane {
 
-	
 	private static final long serialVersionUID = 1L;
 	private int newestLine = 0;
 	private String[] possibleCommands;
@@ -33,16 +38,18 @@ public class IDETextPane extends JTextPane {
 
 	public LineHighlightPane highLighter;
 
+	/**
+	 * Initilizes pane with available commands.
+	 * 
+	 * @author Marston Connell
+	 * @param String[] commands
+	 */
 	public IDETextPane(String[] commands) {
 		setForeground(Color.black);
 		setFont(new Font("Monospaced", Font.PLAIN, 12));
 		this.possibleCommands = commands;
 		setDocument(new DefaultStyledDocument() {
 
-			/**
-			 * @author Marston Connell
-			 *
-			 */
 			private static final long serialVersionUID = 1L;
 
 			public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
@@ -64,6 +71,10 @@ public class IDETextPane extends JTextPane {
 		this.setUI(highLighter);
 	}
 
+	/**
+	 * Forces update on pane.
+	 * @author Marston Connell
+	 */
 	public void update() {
 		try {
 			fixColors();
@@ -72,6 +83,13 @@ public class IDETextPane extends JTextPane {
 		}
 	}
 
+	/**
+	 * Finds last non-alphebetic character in text given.
+	 * @author Marston Connell
+	 * @param String text
+	 * @param int index
+	 * @return index of character.
+	 */
 	private int findLastNonWordChar(String text, int index) {
 		while (--index >= 0) {
 			if (String.valueOf(text.charAt(index)).matches("\\W")) {
@@ -81,6 +99,13 @@ public class IDETextPane extends JTextPane {
 		return index;
 	}
 
+	/**
+	 * Finds first alphebetic character in given text.
+	 * @author Marston Connell
+	 * @param text
+	 * @param index
+	 * @return index of character
+	 */
 	private int findFirstNonWordChar(String text, int index) {
 		while (index < text.length()) {
 			if (String.valueOf(text.charAt(index)).matches("\\W")) {
@@ -91,6 +116,12 @@ public class IDETextPane extends JTextPane {
 		return index;
 	}
 
+	/**
+	 * Checks if string matches available command for hihglighting.
+	 * @author Marston Connell
+	 * @param text
+	 * @return true if command.
+	 */
 	private boolean checkIfCommand(String text) {
 		for (int i = 0; i < possibleCommands.length; i++) {
 			if (possibleCommands[i].equals(text)) {
@@ -100,6 +131,11 @@ public class IDETextPane extends JTextPane {
 		return false;
 	}
 
+	/**
+	 * Applies highlighting and colouring to every possible word in text.
+	 * @author Marston Connell
+	 * @throws BadLocationException
+	 */
 	private void fixColors() throws BadLocationException {
 		newestLine = 0;
 		DefaultStyledDocument doc = (DefaultStyledDocument) this.getDocument();
@@ -124,12 +160,12 @@ public class IDETextPane extends JTextPane {
 						doc.setCharacterAttributes(wordL, (wordR + 1) - wordL, COMMENT, true);
 						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
 
-					} else if(!Pattern.compile( "[0-9]" ).matcher( text.substring(wordL, wordR + 1).trim()  ).find()){
+					} else if (!Pattern.compile("[0-9]").matcher(text.substring(wordL, wordR + 1).trim()).find()) {
 						if (checkIfCommand(text.substring(wordL, wordR + 1).trim())) {
 							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, COMMAND, true);
 							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
 						} else {
-							if (text.substring(wordL, wordR + 1).trim().length() == 3){
+							if (text.substring(wordL, wordR + 1).trim().length() == 3) {
 								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, POINTER, true);
 								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BOLD, false);
 
@@ -139,7 +175,7 @@ public class IDETextPane extends JTextPane {
 							}
 
 						}
-					}else {
+					} else {
 						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BASIC, true);
 						doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
 					}

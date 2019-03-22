@@ -5,11 +5,21 @@ import java.awt.Graphics;
 
 import javax.swing.JOptionPane;
 
+/**
+ * Where all running of user made programs take place.
+ * @author Marston Connell
+ *
+ */
 public class RunThread extends Thread {
 
 	AssemblyWindow aw;
 	public boolean run = true;
 
+	/**
+	 * Links thread to AssemblyWindow.
+	 * @author Marston Connell
+	 * @param AssemblyWindow aw
+	 */
 	public RunThread(AssemblyWindow aw) {
 		this.aw = aw;
 	}
