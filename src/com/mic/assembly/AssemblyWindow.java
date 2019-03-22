@@ -342,6 +342,16 @@ public class AssemblyWindow extends JPanel {
 		c.gridheight = 1;
 		add(input, c);
 
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		j = new JLabel("© Marston Connell - 2019");
+		j.setHorizontalAlignment(JLabel.LEFT);
+		add(j, c);
+		
 		runButton.addActionListener(new ActionListener() {
 
 			@Override

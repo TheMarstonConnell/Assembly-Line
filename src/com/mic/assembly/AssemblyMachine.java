@@ -2,6 +2,7 @@ package com.mic.assembly;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -13,6 +14,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -56,6 +60,7 @@ public class AssemblyMachine {
 		JMenuItem newButton = new JMenuItem("New");
 		JMenuItem save = new JMenuItem("Save to disk");
 		JMenuItem load = new JMenuItem("Load from file");
+		JMenuItem wiki = new JMenuItem("Wiki");
 
 		save.addActionListener(new ActionListener() {
 
@@ -81,6 +86,19 @@ public class AssemblyMachine {
 			}
 		});
 
+		wiki.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+				    try {
+						Desktop.getDesktop().browse(new URI("https://github.com/TheMarstonConnell/Assembly-Line/wiki"));
+					} catch (IOException | URISyntaxException e1) {
+						e1.printStackTrace();
+					}
+				}				
+			}
+		});
 		
 
 		copy.addActionListener(new ActionListener() {
@@ -172,6 +190,7 @@ public class AssemblyMachine {
 		file.add(save);
 		file.add(load);
 		file.add(help);
+		file.add(wiki);
 
 		JMenu edit = new JMenu("Edit");
 
