@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.regex.Pattern;
 
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -37,6 +38,13 @@ public class IDETextPane extends JTextPane {
 	final AttributeSet BASIC = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
 
 	public LineHighlightPane highLighter;
+	private JTextField error;
+
+	public IDETextPane(String[] commands, JTextField errorText) {
+		this(commands);
+		this.error = errorText;
+
+	}
 
 	/**
 	 * Initilizes pane with available commands.
@@ -73,6 +81,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Forces update on pane.
+	 * 
 	 * @author Marston Connell
 	 */
 	public void update() {
@@ -85,9 +94,10 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Finds last non-alphebetic character in text given.
+	 * 
 	 * @author Marston Connell
 	 * @param String text
-	 * @param int index
+	 * @param        int index
 	 * @return index of character.
 	 */
 	private int findLastNonWordChar(String text, int index) {
@@ -101,6 +111,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Finds first alphebetic character in given text.
+	 * 
 	 * @author Marston Connell
 	 * @param text
 	 * @param index
@@ -118,6 +129,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Checks if string matches available command for hihglighting.
+	 * 
 	 * @author Marston Connell
 	 * @param text
 	 * @return true if command.
@@ -133,6 +145,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Applies highlighting and colouring to every possible word in text.
+	 * 
 	 * @author Marston Connell
 	 * @throws BadLocationException
 	 */
@@ -184,5 +197,39 @@ public class IDETextPane extends JTextPane {
 			wordR++;
 		}
 
+		if (error != null) {
+			error.setText(checkErrors());
+		}
+
+	}
+
+	private String checkErrors() {
+		if (!Pattern.compile("[0-9]").matcher(this.getText().trim()).find()) {
+			String codeo = getText();
+			String[] lines = codeo.split("\n");
+			int error = 0;
+
+			for (String line : lines) {
+				if (line.trim().length() > 0) {
+					boolean command = false;
+					for (String theCommand : possibleCommands) {
+						if (line.contains(theCommand) || line.trim().startsWith("#")) {
+							command = true;
+						}
+
+					}
+
+					if (!command) {
+						return "No valid commands present at line " + error;
+					}
+
+				}
+
+				error++;
+
+			}
+
+		}
+		return "";
 	}
 }

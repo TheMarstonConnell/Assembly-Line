@@ -1,5 +1,6 @@
 package com.mic.assembly;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Desktop;
@@ -30,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -61,7 +63,27 @@ public class AssemblyMachine {
 		JMenuItem save = new JMenuItem("Save to disk");
 		JMenuItem load = new JMenuItem("Load from file");
 		JMenuItem wiki = new JMenuItem("Wiki");
+		
+		newButton.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_N, 
+		        java.awt.Event.CTRL_MASK));
 
+		copy.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_C, 
+		        java.awt.Event.CTRL_MASK));
+		
+		save.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_S, 
+		        java.awt.Event.CTRL_MASK));
+		
+		load.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_O, 
+		        java.awt.Event.CTRL_MASK));
+		
+		wiki.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_W, 
+		        java.awt.Event.CTRL_MASK));
+		
 		save.addActionListener(new ActionListener() {
 
 			@Override
@@ -174,6 +196,9 @@ public class AssemblyMachine {
 		helpFrame.setResizable(false);
 
 		JMenuItem help = new JMenuItem("Help");
+		help.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_H, 
+		        java.awt.Event.CTRL_MASK));
 		help.addActionListener(new ActionListener() {
 
 			@Override
@@ -195,6 +220,9 @@ public class AssemblyMachine {
 		JMenu edit = new JMenu("Edit");
 
 		JMenuItem cleanUp = new JMenuItem("Refactor");
+		cleanUp.setAccelerator(KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_I, 
+		        java.awt.Event.CTRL_MASK));
 		cleanUp.addActionListener(new ActionListener() {
 
 			@Override
@@ -252,6 +280,9 @@ public class AssemblyMachine {
 		langType.add(assembler);
 
 		JMenuItem graphics = new JMenuItem("Display Graphics");
+		graphics.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_G, 
+		        java.awt.Event.CTRL_MASK));
 		graphics.addActionListener(new ActionListener() {
 
 			@Override
@@ -328,15 +359,13 @@ public class AssemblyMachine {
 		frame = new JFrame("Assembly Line");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		cl = new CardLayout();
-		JPanel root = new JPanel(cl);
+		JPanel root = new JPanel(new BorderLayout());
 		frame.add(root);
 
 		aw = new AssemblyWindow();
 
 		// Add contents to the window.
-		root.add(aw, EDITOR);
-		cl.show(root, EDITOR);
+		root.add(aw, BorderLayout.CENTER);
 
 		frame.setJMenuBar(createMenu());
 
@@ -344,8 +373,10 @@ public class AssemblyMachine {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		frame.setResizable(false);
+//		frame.setResizable(false);
 
+		aw.code.requestFocus();
+		
 		try {
 			frame.setIconImage(ImageIO.read(frame.getClass().getResource("/assemblyIcon.png")));
 		} catch (IOException e1) {
