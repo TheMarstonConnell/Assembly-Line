@@ -30,12 +30,22 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicLookAndFeel;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.multi.MultiLookAndFeel;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.plaf.synth.SynthLookAndFeel;
+
+import plaf.material.MaterialLookAndFeel;
 
 /**
  * The main emulator for the entire machine.
  * 
- * @author Marston Connell
+ * @author Marston ConnellE
  *
  */
 public class AssemblyMachine {
@@ -53,6 +63,21 @@ public class AssemblyMachine {
 	 * @return JMenuBar
 	 */
 	private static JMenuBar createMenu() {
+
+		// for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		// System.out.println(info.getName());
+		// if ("Metal".equals(info.getName())) {
+		// try {
+		// UIManager.setLookAndFeel(info.getClassName());
+		// } catch (ClassNotFoundException | InstantiationException |
+		// IllegalAccessException
+		// | UnsupportedLookAndFeelException e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+
+
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
 
@@ -87,19 +112,18 @@ public class AssemblyMachine {
 		});
 
 		wiki.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-				    try {
+					try {
 						Desktop.getDesktop().browse(new URI("https://github.com/TheMarstonConnell/Assembly-Line/wiki"));
 					} catch (IOException | URISyntaxException e1) {
 						e1.printStackTrace();
 					}
-				}				
+				}
 			}
 		});
-		
 
 		copy.addActionListener(new ActionListener() {
 
@@ -270,7 +294,7 @@ public class AssemblyMachine {
 				choice.setFileFilter(new FileNameExtensionFilter("Assembly Line File", "asm"));
 				choice.setSelectedFile(new File("MyProgram.asm"));
 				choice.showOpenDialog(aw);
-				
+
 				FileInputStream fis;
 				String str = null;
 				try {
@@ -286,14 +310,14 @@ public class AssemblyMachine {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				if(str.trim().startsWith("true")) {
+				if (str.trim().startsWith("true")) {
 					machine.setSelected(true);
 					assembler.setSelected(false);
 
 					aw.useNums = true;
 					aw.codeTitle.setText("Machine Language");
 					aw.scrollPane.setColumnHeaderView(aw.codeTitle);
-				}else {
+				} else {
 					machine.setSelected(false);
 					assembler.setSelected(true);
 					aw.useNums = false;
@@ -303,7 +327,7 @@ public class AssemblyMachine {
 				aw.code.setText(str.replace("true", "").replace("false", "").trim());
 			}
 		});
-		
+
 		edit.add(langType);
 		edit.add(codeStep);
 		edit.addSeparator();
@@ -317,9 +341,9 @@ public class AssemblyMachine {
 		return menuBar;
 	}
 
-	
 	/**
 	 * Creates and displays layout to display including frame.
+	 * 
 	 * @author Marston Connell
 	 */
 	private static void createAndShowGUI() {
@@ -332,6 +356,8 @@ public class AssemblyMachine {
 		JPanel root = new JPanel(cl);
 		frame.add(root);
 
+		
+		
 		aw = new AssemblyWindow();
 
 		// Add contents to the window.
@@ -356,16 +382,26 @@ public class AssemblyMachine {
 
 	/**
 	 * Program starting point.
+	 * 
 	 * @author Marston Connell
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(new MaterialLookAndFeel());
+		} catch (UnsupportedLookAndFeelException e2) {
+			e2.printStackTrace();
+		}
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		JDialog.setDefaultLookAndFeelDecorated(true);
+		
 		createAndShowGUI();
 
 	}
 
 	/**
 	 * Copy wrapper for Window.
+	 * 
 	 * @author Marston Connell
 	 */
 	private static void copy() {

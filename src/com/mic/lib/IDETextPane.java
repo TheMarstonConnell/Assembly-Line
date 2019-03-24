@@ -2,6 +2,7 @@ package com.mic.lib;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.util.regex.Pattern;
 
 import javax.swing.JTextPane;
@@ -37,7 +38,7 @@ public class IDETextPane extends JTextPane {
 	final AttributeSet BASIC = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
 
 	public LineHighlightPane highLighter;
-
+	
 	/**
 	 * Initilizes pane with available commands.
 	 * 

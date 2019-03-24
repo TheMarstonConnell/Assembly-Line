@@ -3,6 +3,8 @@ package com.mic.assembly;
 import java.awt.*;
 import java.beans.*;
 import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
@@ -84,6 +86,18 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 		component.getDocument().addDocumentListener(this);
 		component.addCaretListener(this);
 		component.addPropertyChangeListener("font", this);
+	}
+	
+	public static Graphics getAliasedGraphics (Graphics g) {
+		Map<RenderingHints.Key, Object> hints = (Map<RenderingHints.Key, Object>) Toolkit.getDefaultToolkit ().getDesktopProperty ("awt.font.desktophints");
+		hints.put (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
+
+
+
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.addRenderingHints (hints);
+		//g2d.addRenderingHints (new RenderingHints (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+		return g2d;
 	}
 
 	/**
@@ -223,6 +237,8 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
+		g = getAliasedGraphics(g);
+		
 		// Determine the width of the space available to draw the line number
 
 		FontMetrics fontMetrics = component.getFontMetrics(component.getFont());

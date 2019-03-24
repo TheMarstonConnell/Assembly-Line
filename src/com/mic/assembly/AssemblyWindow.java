@@ -140,7 +140,7 @@ public class AssemblyWindow extends JPanel {
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(400, 300));
 		codeTitle = new JLabel("Machine Language");
-		codeTitle.setFont(new Font("Monospaced", Font.PLAIN, 12));
+//		codeTitle.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		scrollPane.setColumnHeaderView(codeTitle);
 
 		mdl = new DefaultTableModel();
