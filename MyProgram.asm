@@ -1,0 +1,2 @@
+true
+inp a
