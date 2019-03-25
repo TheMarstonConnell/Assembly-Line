@@ -1,8 +1,20 @@
 package plaf.material.utils;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.SwingUtilities;
+
+import com.mic.assembly.AssemblyMachine;
 
 public class MaterialColors {
+	
+	boolean dark = false;
+	
 	public static final Color RED_50 = new Color (255, 235, 238);
 	public static final Color RED_100 = new Color (255, 205, 210);
 	public static final Color RED_200 = new Color (239, 154, 154);
@@ -260,11 +272,49 @@ public class MaterialColors {
 	public static final Color BLACK = new Color (0, 0, 0);
 	public static final Color WHITE = new Color (255, 255, 255);
 	
-	public static final Color PRIMARY = new Color(0x29b6f6);
-	public static final Color PRIMARY_DARK = new Color(0x0086c3);
-	public static final Color PRIMARY_LIGHT = new Color(0x73e8ff);
+	public static final Color LIGHT_PRIMARY = new Color(0x29b6f6);
+	public static final Color LIGHT_PRIMARY_DARK = new Color(0x0086c3);
+	public static final Color LIGHT_PRIMARY_LIGHT = new Color(0x73e8ff);
+	
+	public static final Color DARK_PRIMARY = new Color(0xad1457);
+	public static final Color DARK_PRIMARY_DARK = new Color(0x78002e);
+	public static final Color DARK_PRIMARY_LIGHT = new Color(0xe35183);
+	
+	public static final Color LIGHT_HIGHLIGHT = new Color(232, 242, 254);
+	public static final Color DARK_HIGHLIGHT = new Color(232, 242, 254, 30);
 
-	private MaterialColors () {}
+	
+	public Color currentPrimary = LIGHT_PRIMARY;
+	public Color currentPrimaryDark = LIGHT_PRIMARY_DARK;
+	public Color currentPrimaryLight = LIGHT_PRIMARY_LIGHT;
+	public Color currentBackground = GRAY_100;
+	public Color currentAccent = WHITE;
+	public Color currentText = BLACK;
+
+	
+	public Color currentHightlight = WHITE;
+
+	public MaterialColors (boolean dark) {
+		if(dark) {
+			currentPrimary = DARK_PRIMARY;
+			currentPrimaryDark = DARK_PRIMARY_DARK;
+			currentPrimaryLight = DARK_PRIMARY_LIGHT;
+			currentBackground = GRAY_800;
+			currentAccent = GRAY_900;
+			currentText = WHITE;
+			currentHightlight = DARK_HIGHLIGHT;
+		}else {
+			currentPrimary = LIGHT_PRIMARY;
+			currentPrimaryDark = LIGHT_PRIMARY_DARK;
+			currentPrimaryLight = LIGHT_PRIMARY_LIGHT;
+			currentBackground = GRAY_100;
+			currentAccent = WHITE;
+			currentText = BLACK;
+			currentHightlight = LIGHT_HIGHLIGHT;
+
+		}
+		
+	}
 
 	public static Color bleach (Color color, float amount) {
 		int red = (int) ((color.getRed () * (1 - amount) / 255 + amount) * 255);
@@ -272,4 +322,35 @@ public class MaterialColors {
 		int blue = (int) ((color.getBlue () * (1 - amount) / 255 + amount) * 255);
 		return new Color (red, green, blue);
 	}
+	
+	public void setDark(boolean dark) {
+		if(dark) {
+			currentPrimary = DARK_PRIMARY;
+			currentPrimaryDark = DARK_PRIMARY_DARK;
+			currentPrimaryLight = DARK_PRIMARY_LIGHT;
+			currentBackground = GRAY_900;
+			currentAccent = BLACK;
+			currentText = WHITE;
+		}else {
+			currentPrimary = LIGHT_PRIMARY;
+			currentPrimaryDark = LIGHT_PRIMARY_DARK;
+			currentPrimaryLight = LIGHT_PRIMARY_LIGHT;
+			currentBackground = GRAY_100;
+			currentAccent = WHITE;
+			currentText = BLACK;
+		}
+
+	}
+	
+	public static List<Component> getAllComponents(final Container c) {
+	    Component[] comps = c.getComponents();
+	    List<Component> compList = new ArrayList<Component>();
+	    for (Component comp : comps) {
+	      compList.add(comp);
+	      if (comp instanceof Container) {
+	        compList.addAll(getAllComponents((Container) comp));
+	      }
+	    }
+	    return compList;
+	  }
 }

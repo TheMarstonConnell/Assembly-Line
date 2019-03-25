@@ -8,6 +8,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.metal.MetalFileChooserUI;
 
 import plaf.material.utils.MaterialDrawingUtils;
+import plaf.material.utils.MaterialImages;
 
 import java.awt.Graphics;
 
@@ -31,17 +32,17 @@ public class MaterialFileChooserUI extends MetalFileChooserUI {
 		ui.uninstallComponents (fileChooser);
 		ui.clearIconCache ();
 
-//		ui.computerIcon = new ImageIcon (MaterialImages.COMPUTER);
-//		ui.directoryIcon = new ImageIcon (MaterialImages.FOLDER);
-//		ui.fileIcon = new ImageIcon (MaterialImages.FILE);
-//		ui.floppyDriveIcon = new ImageIcon (MaterialImages.FLOPPY_DRIVE);
-//		ui.hardDriveIcon = new ImageIcon (MaterialImages.HARD_DRIVE);
-//
-//		ui.homeFolderIcon = new ImageIcon (MaterialImages.HOME);
-//		ui.listViewIcon = new ImageIcon (MaterialImages.LIST);
-//		ui.detailsViewIcon = new ImageIcon (MaterialImages.DETAILS);
-//		ui.newFolderIcon = new ImageIcon (MaterialImages.NEW_FOLDER);
-//		ui.upFolderIcon = new ImageIcon (MaterialImages.BACK_ARROW);
+		ui.computerIcon = new ImageIcon (MaterialImages.COMPUTER);
+		ui.directoryIcon = new ImageIcon (MaterialImages.FOLDER);
+		ui.fileIcon = new ImageIcon (MaterialImages.FILE);
+		ui.floppyDriveIcon = new ImageIcon (MaterialImages.FLOPPY_DRIVE);
+		ui.hardDriveIcon = new ImageIcon (MaterialImages.HARD_DRIVE);
+
+		ui.homeFolderIcon = new ImageIcon (MaterialImages.HOME);
+		ui.listViewIcon = new ImageIcon (MaterialImages.LIST);
+		ui.detailsViewIcon = new ImageIcon (MaterialImages.DETAILS);
+		ui.newFolderIcon = new ImageIcon (MaterialImages.NEW_FOLDER);
+		ui.upFolderIcon = new ImageIcon (MaterialImages.BACK_ARROW);
 
 		ui.openButtonText = "OPEN";
 		ui.cancelButtonText = "CANCEL";

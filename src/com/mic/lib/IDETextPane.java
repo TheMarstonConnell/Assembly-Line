@@ -26,8 +26,12 @@ public class IDETextPane extends JTextPane {
 	private int newestLine = 0;
 	private String[] possibleCommands;
 
+	public Color text = Color.black;
+
+	public boolean dark = false;
+
 	final StyleContext cont = StyleContext.getDefaultStyleContext();
-	final AttributeSet COMMAND = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.blue);
+	final AttributeSet COMMAND = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(0xff6f00));
 	final AttributeSet POINTER = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground,
 			new Color(150, 55, 214));
 	final AttributeSet COMMENT = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground,
@@ -35,10 +39,10 @@ public class IDETextPane extends JTextPane {
 	final AttributeSet BOLD = cont.addAttribute(cont.getEmptySet(), StyleConstants.Bold, true);
 	final AttributeSet PLAIN = cont.removeAttribute(BOLD, StyleConstants.Bold);
 
-	final AttributeSet BASIC = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
+	AttributeSet BASIC = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, text);
 
 	public LineHighlightPane highLighter;
-	
+
 	/**
 	 * Initilizes pane with available commands.
 	 * 
@@ -46,7 +50,7 @@ public class IDETextPane extends JTextPane {
 	 * @param String[] commands
 	 */
 	public IDETextPane(String[] commands) {
-		setForeground(Color.black);
+		setForeground(text);
 		setFont(new Font("Monospaced", Font.PLAIN, 12));
 		this.possibleCommands = commands;
 		setDocument(new DefaultStyledDocument() {
@@ -72,8 +76,15 @@ public class IDETextPane extends JTextPane {
 		this.setUI(highLighter);
 	}
 
+	public void updateColor(Color text, Color background) {
+		this.text = text;
+		setBackground(background);
+		BASIC = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, text);
+	}
+
 	/**
 	 * Forces update on pane.
+	 * 
 	 * @author Marston Connell
 	 */
 	public void update() {
@@ -86,9 +97,10 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Finds last non-alphebetic character in text given.
+	 * 
 	 * @author Marston Connell
 	 * @param String text
-	 * @param int index
+	 * @param        int index
 	 * @return index of character.
 	 */
 	private int findLastNonWordChar(String text, int index) {
@@ -102,6 +114,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Finds first alphebetic character in given text.
+	 * 
 	 * @author Marston Connell
 	 * @param text
 	 * @param index
@@ -119,6 +132,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Checks if string matches available command for hihglighting.
+	 * 
 	 * @author Marston Connell
 	 * @param text
 	 * @return true if command.
@@ -134,6 +148,7 @@ public class IDETextPane extends JTextPane {
 
 	/**
 	 * Applies highlighting and colouring to every possible word in text.
+	 * 
 	 * @author Marston Connell
 	 * @throws BadLocationException
 	 */
@@ -164,7 +179,7 @@ public class IDETextPane extends JTextPane {
 					} else if (!Pattern.compile("[0-9]").matcher(text.substring(wordL, wordR + 1).trim()).find()) {
 						if (checkIfCommand(text.substring(wordL, wordR + 1).trim())) {
 							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, COMMAND, true);
-							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, PLAIN, false);
+							doc.setCharacterAttributes(wordL, wordR + 1 - wordL, BOLD, false);
 						} else {
 							if (text.substring(wordL, wordR + 1).trim().length() == 3) {
 								doc.setCharacterAttributes(wordL, wordR + 1 - wordL, POINTER, true);

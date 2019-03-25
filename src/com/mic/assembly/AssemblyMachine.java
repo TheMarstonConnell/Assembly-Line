@@ -9,9 +9,11 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -30,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -41,6 +45,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.plaf.synth.SynthLookAndFeel;
 
 import plaf.material.MaterialLookAndFeel;
+import plaf.material.utils.MaterialFonts;
 
 /**
  * The main emulator for the entire machine.
@@ -49,12 +54,17 @@ import plaf.material.MaterialLookAndFeel;
  *
  */
 public class AssemblyMachine {
-	static JFrame frame;
+	public static JFrame frame;
 	static CardLayout cl;
 	final static String EDITOR = "edit";
 	final static String RUNTIME = "run";
 	static AssemblyWindow aw;
 	static JDialog helpFrame;
+	public static MaterialLookAndFeel ui;
+	static JCheckBoxMenuItem codeStep;
+	static JCheckBoxMenuItem darkModeButton;
+	static JRadioButtonMenuItem assembler;
+	static JRadioButtonMenuItem machine;
 
 	/**
 	 * Initializes Menu bar for frame.
@@ -76,7 +86,6 @@ public class AssemblyMachine {
 		// }
 		// }
 		// }
-
 
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
@@ -229,19 +238,33 @@ public class AssemblyMachine {
 		});
 
 		JMenu langType = new JMenu("Language");
-		JCheckBoxMenuItem codeStep = new JCheckBoxMenuItem("Step through code");
+		codeStep = new JCheckBoxMenuItem("Step through code");
 		codeStep.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aw.stepCode = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+				saveUserPrefs();
+			}
+
+		});
+
+		darkModeButton = new JCheckBoxMenuItem("Dark Mode");
+		darkModeButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				aw.darkmode = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+				updateLAF(aw.darkmode);
+				aw.code.update();
+				saveUserPrefs();
 			}
 
 		});
 
 		ButtonGroup group = new ButtonGroup();
 
-		JRadioButtonMenuItem machine = new JRadioButtonMenuItem("Machine Language");
+		machine = new JRadioButtonMenuItem("Machine Language");
 		group.add(machine);
 		machine.setSelected(true);
 		machine.addActionListener(new ActionListener() {
@@ -253,13 +276,13 @@ public class AssemblyMachine {
 				aw.scrollPane.setColumnHeaderView(aw.codeTitle);
 
 				aw.code.update();
-
+				saveUserPrefs();
 			}
 
 		});
 		langType.add(machine);
 
-		JRadioButtonMenuItem assembler = new JRadioButtonMenuItem("Assembler");
+		assembler = new JRadioButtonMenuItem("Assembler");
 		assembler.addActionListener(new ActionListener() {
 
 			@Override
@@ -268,7 +291,7 @@ public class AssemblyMachine {
 				aw.codeTitle.setText("Assembler");
 				aw.scrollPane.setColumnHeaderView(aw.codeTitle);
 				aw.code.update();
-
+				saveUserPrefs();
 			}
 
 		});
@@ -328,6 +351,61 @@ public class AssemblyMachine {
 			}
 		});
 
+		JMenu run = new JMenu("Run");
+		JMenuItem compile = new JMenuItem("Compile");
+		JMenuItem runProg = new JMenuItem("Run");
+		JMenuItem compRun = new JMenuItem("Compile and Run");
+
+		compile.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				aw.compile();
+
+			}
+
+		});
+		runProg.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				aw.runCode();
+
+			}
+
+		});
+		compRun.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				aw.compile();
+				aw.runCode();
+
+			}
+
+		});
+
+		run.add(compile);
+		run.add(runProg);
+		run.add(compRun);
+
+		newButton.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK));
+
+		copy.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.Event.CTRL_MASK));
+
+		save.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK));
+
+		load.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.CTRL_MASK));
+
+		wiki.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.Event.CTRL_MASK));
+		help.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK));
+		cleanUp.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.Event.CTRL_MASK));
+		graphics.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.Event.CTRL_MASK));
+		compile.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.Event.CTRL_MASK));
+		runProg.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.Event.CTRL_MASK));
+		compRun.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.Event.CTRL_MASK));
+
+		edit.add(darkModeButton);
 		edit.add(langType);
 		edit.add(codeStep);
 		edit.addSeparator();
@@ -337,6 +415,7 @@ public class AssemblyMachine {
 
 		menuBar.add(file);
 		menuBar.add(edit);
+		menuBar.add(run);
 
 		return menuBar;
 	}
@@ -356,9 +435,7 @@ public class AssemblyMachine {
 		JPanel root = new JPanel(cl);
 		frame.add(root);
 
-		
-		
-		aw = new AssemblyWindow();
+		aw = new AssemblyWindow(ui.colors.currentText, MaterialFonts.REGULAR);
 
 		// Add contents to the window.
 		root.add(aw, EDITOR);
@@ -387,16 +464,35 @@ public class AssemblyMachine {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		updateLAF(false);
+
+		createAndShowGUI();
+//		loadUserPrefs();
+
+	}
+
+	private static void updateLAF(boolean dark) {
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		JDialog.setDefaultLookAndFeelDecorated(true);
+		ui = new MaterialLookAndFeel(dark);
 		try {
-			UIManager.setLookAndFeel(new MaterialLookAndFeel());
+			UIManager.setLookAndFeel(ui);
 		} catch (UnsupportedLookAndFeelException e2) {
 			e2.printStackTrace();
 		}
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		JDialog.setDefaultLookAndFeelDecorated(true);
-		
-		createAndShowGUI();
 
+		if (frame != null) {
+			aw.code.dark = dark;
+			SwingUtilities.updateComponentTreeUI(AssemblyMachine.frame);
+			aw.tln.setCurrentLineForeground(ui.colors.currentText);
+			aw.setBorder(MaterialFonts.REGULAR, ui.colors.currentText);
+			aw.code.updateColor(ui.colors.currentText, ui.colors.currentAccent);
+			aw.memory.getTableHeader().setBackground(ui.colors.currentPrimary);
+			aw.scrollPane.getColumnHeader().setBackground(ui.colors.currentBackground);
+			aw.scrollPane.setBackground(ui.colors.currentBackground);
+			aw.memoryDisplay.setBackground(ui.colors.currentBackground);
+
+		}
 	}
 
 	/**
@@ -408,6 +504,76 @@ public class AssemblyMachine {
 		StringSelection stringSelection = new StringSelection(aw.copyCode());
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(stringSelection, null);
+	}
+
+	public static void saveUserPrefs() {
+		File dir = getAppData();
+		dir.mkdirs();
+
+		try (PrintWriter out = new PrintWriter(new File(dir, "userData.dat"))) {
+			out.println(aw.useNums + System.lineSeparator() + aw.darkmode + System.lineSeparator() + aw.stepCode);
+		} catch (FileNotFoundException e1) {
+		}
+
+	}
+
+	public static void loadUserPrefs() {
+		File dir = getAppData();
+		boolean useNums = true;
+		boolean darkMode = false;
+		boolean step = false;
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(new File(dir, "userData.dat")));
+			int x = 0;
+			String line = reader.readLine();
+			while (line != null) {
+				switch (x) {
+				case 0:
+					useNums = Boolean.parseBoolean(line.trim());
+					break;
+				case 1:
+					darkMode = Boolean.parseBoolean(line.trim());
+					break;
+				case 2:
+					step = Boolean.parseBoolean(line.trim());
+					break;
+				}
+				x++;
+				System.out.println(line);
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		aw.darkmode = darkMode;
+		darkModeButton.setSelected(darkMode);
+		updateLAF(aw.darkmode);
+		aw.code.update();
+		codeStep.setSelected(step);
+		aw.stepCode = step;
+		aw.useNums = useNums;
+		if (useNums) {
+			aw.codeTitle.setText("Machine Language");
+			aw.scrollPane.setColumnHeaderView(aw.codeTitle);
+
+			aw.code.update();
+			machine.setSelected(true);
+			assembler.setSelected(false);
+		} else {
+			aw.codeTitle.setText("Assembler");
+			aw.scrollPane.setColumnHeaderView(aw.codeTitle);
+			aw.code.update();
+			machine.setSelected(false);
+			assembler.setSelected(true);
+		}
+	}
+
+	private static File getAppData() {
+		File dir = new File(System.getenv("APPDATA"));
+		return new File(dir, "AssemblyLine");
 	}
 
 }

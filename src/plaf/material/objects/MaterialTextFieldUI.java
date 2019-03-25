@@ -11,6 +11,9 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 
+import com.mic.assembly.AssemblyMachine;
+import com.mic.assembly.AssemblyWindow;
+
 import plaf.material.utils.MaterialColors;
 import plaf.material.utils.MaterialDrawingUtils;
 import plaf.material.utils.MaterialFonts;
@@ -203,17 +206,12 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 	 * @fixed by https://github.com/vincenzopalazzo
 	 */
 	public void paintSafely(Graphics g) {
-		this.getComponent().setBackground(MaterialColors.GRAY_100);
 		JTextField c = (JTextField) getComponent();
-		g.setColor(MaterialColors.GRAY_100);
-		int x = c.getInsets().left;
-		int y = c.getInsets().top;
-		int w = c.getWidth() - c.getInsets().left - c.getInsets().right;
-		int h = c.getHeight() - c.getInsets().top - c.getInsets().bottom;
-		g.fillRect(x, y, w, h);
-		super.paintSafely(MaterialDrawingUtils.getAliasedGraphics (g));
+		super.paintSafely(g);
 		if (drawLine) {
-			
+			int x = c.getInsets().left;
+			int y = c.getInsets().top;
+			int w = c.getWidth() - c.getInsets().left - c.getInsets().right;
 			g.setColor(c.getSelectionColor());
 
 			g.fillRect(x, c.getHeight() - y, w, 1);
@@ -229,7 +227,7 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 			Color newColor = (Color) pce.getNewValue();
 			if (!newColor.equals(activeBackground) && !newColor.equals(inactiveBackground)) {
 				this.activeBackground = newColor;
-				getComponent().repaint();
+//				getComponent().repaint();
 			}
 		}
 
@@ -237,7 +235,7 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 			Color newColor = (Color) pce.getNewValue();
 			if (!newColor.equals(activeForeground) && !newColor.equals(inactiveForeground)) {
 				this.activeForeground = newColor;
-				getComponent().repaint();
+//				getComponent().repaint();
 			}
 		}
 		if (pce.getPropertyName().equals("background")) {

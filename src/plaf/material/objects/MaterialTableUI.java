@@ -35,7 +35,7 @@ public class MaterialTableUI extends BasicTableUI {
         if (rowHeight > 0) {
             table.setRowHeight(rowHeight);
         } else {
-            table.setRowHeight(table.getRowHeight() + 4);
+            table.setRowHeight(table.getRowHeight());
         }
 
         table.setDefaultRenderer(Object.class, new MaterialTableCellRenderer());

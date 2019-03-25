@@ -11,15 +11,17 @@ import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.UIResource;
 
+import com.mic.assembly.AssemblyMachine;
+
 public class MaterialBorders {
 	public static final Border LIGHT_LINE_BORDER = BorderFactory.createLineBorder (MaterialColors.GRAY_200, 1);
 
 	public static final Border LIGHT_SHADOW_BORDER = new DropShadowBorder (Color.BLACK, 0, 4, 0.3f, 12, true, true, true, true);
 	public static final Border DEFAULT_SHADOW_BORDER = new DropShadowBorder (Color.BLACK, 5, 5, 0.3f, 12, true, true, true, true);
 
-	public static final InternalFrameBorder frameBorder = new InternalFrameBorder();
+	public final InternalFrameBorder frameBorder = new InternalFrameBorder();
 
-	public static class InternalFrameBorder extends AbstractBorder implements UIResource {
+	public class InternalFrameBorder extends AbstractBorder implements UIResource {
         private static final int corner = 14;
 
         public void paintBorder(Component c, Graphics g, int x, int y,
@@ -30,13 +32,13 @@ public class MaterialBorders {
             Color shadow;
 
             if (c instanceof JInternalFrame && ((JInternalFrame)c).isSelected()) {
-                background = MaterialColors.PRIMARY;
-                highlight = MaterialColors.PRIMARY_LIGHT;
-                shadow = MaterialColors.PRIMARY_DARK;
+                background = AssemblyMachine.ui.colors.currentPrimary;
+                highlight = AssemblyMachine.ui.colors.currentPrimaryLight;
+                shadow = AssemblyMachine.ui.colors.currentPrimaryDark;
             } else {
-            	background = MaterialColors.PRIMARY;
-                highlight = MaterialColors.PRIMARY_LIGHT;
-                shadow = MaterialColors.PRIMARY_DARK;
+            	background = AssemblyMachine.ui.colors.currentPrimary;
+                highlight = AssemblyMachine.ui.colors.currentPrimaryLight;
+                shadow = AssemblyMachine.ui.colors.currentPrimaryDark;
             }
 
               g.setColor(background);

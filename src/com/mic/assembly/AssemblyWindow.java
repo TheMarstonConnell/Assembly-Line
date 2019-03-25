@@ -21,12 +21,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import com.mic.lib.IDETextPane;
 
 /**
  * The panel that displays and runs all editing and outputs from program.
+ * 
  * @author Marston Connell
  *
  */
@@ -42,8 +44,9 @@ public class AssemblyWindow extends JPanel {
 	protected IDETextPane code;
 	private JButton runButton;
 	private JButton compileCode;
-	private JTable memory;
+	JTable memory;
 	private String[] commands;
+	public TextLineNumber tln;
 
 	// graphics
 	int xPos = 0;
@@ -55,8 +58,15 @@ public class AssemblyWindow extends JPanel {
 
 	public int currentKeyDown = 0;
 
+	public boolean darkmode = false;
+
 	public JLabel codeTitle;
 	public JScrollPane scrollPane;
+
+	// panels
+	JPanel codep;
+	JPanel memp;
+	JScrollPane memoryDisplay;
 
 	JTextField input;
 	private JDialog f = null;
@@ -76,6 +86,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Checks if string is an available command.
+	 * 
 	 * @author Marston Connell
 	 * @param com
 	 * @return true if string is command.
@@ -90,10 +101,12 @@ public class AssemblyWindow extends JPanel {
 	}
 
 	/**
-	 * Initializes the panel for inside the frame with all the buttons and other inputs/outputs.
+	 * Initializes the panel for inside the frame with all the buttons and other
+	 * inputs/outputs.
+	 * 
 	 * @author Marston Connell
 	 */
-	public AssemblyWindow() {
+	public AssemblyWindow(Color color, Font font) {
 		super(new GridBagLayout());
 
 		/**
@@ -130,7 +143,7 @@ public class AssemblyWindow extends JPanel {
 
 		code = new IDETextPane(possibleCommands);
 
-		TextLineNumber tln = new TextLineNumber(code.highLighter);
+		tln = new TextLineNumber(code.highLighter);
 		tln.setMinimumDisplayDigits(3);
 
 		runButton = new JButton("Run Program");
@@ -140,7 +153,8 @@ public class AssemblyWindow extends JPanel {
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(400, 300));
 		codeTitle = new JLabel("Machine Language");
-//		codeTitle.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		codeTitle.setOpaque(false);
+		// codeTitle.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		scrollPane.setColumnHeaderView(codeTitle);
 
 		mdl = new DefaultTableModel();
@@ -155,8 +169,8 @@ public class AssemblyWindow extends JPanel {
 
 		memory.setModel(mdl);
 
-		JScrollPane memoryDisplay = new JScrollPane(memory);
-		memoryDisplay.setPreferredSize(new Dimension(400, 300));
+		memoryDisplay = new JScrollPane(memory);
+		memoryDisplay.setPreferredSize(new Dimension(360, 300));
 
 		graphicsPane = new DrawingPane();
 		graphicsPane.setPreferredSize(new Dimension(400, 300));
@@ -168,22 +182,22 @@ public class AssemblyWindow extends JPanel {
 		graphicsPane.repaint();
 		AC = new JTextField();
 		AC.setEditable(false);
-		AC.setBackground(Color.white);
+		AC.setOpaque(false);
 
 		MQ = new JTextField();
 		MQ.setEditable(false);
-		MQ.setBackground(Color.white);
+		MQ.setOpaque(false);
 
 		xReg = new JTextField();
 		xReg.setEditable(false);
-		xReg.setBackground(Color.white);
+		xReg.setOpaque(false);
 		yReg = new JTextField();
 		yReg.setEditable(false);
-		yReg.setBackground(Color.white);
+		yReg.setOpaque(false);
 
 		input = new JTextField();
 		input.setEditable(false);
-		input.setBackground(Color.white);
+		input.setOpaque(false);
 
 		JButton stopRunning = new JButton("      Stop      ");
 		stopRunning.addActionListener(new ActionListener() {
@@ -196,8 +210,7 @@ public class AssemblyWindow extends JPanel {
 		});
 
 		// Add Components to this panel.
-		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder("Code"));
+		codep = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.ipady = 0;
@@ -205,19 +218,18 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 0;
 		c.gridwidth = 3;
 		c.gridheight = 1;
-		p.add(scrollPane);
-		add(p, c);
+		codep.add(scrollPane);
+		add(codep, c);
 
-		p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder("Memory Locations and Registries"));
+		memp = new JPanel();
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 4;
 		c.gridy = 0;
 		c.gridwidth = 4;
 		c.gridheight = 1;
-		p.add(memoryDisplay);
-		add(p, c);
+		memp.add(memoryDisplay);
+		add(memp, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -234,17 +246,10 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		JLabel j = new JLabel("AC: ");
-		j.setToolTipText("<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
+		j.setToolTipText(
+				"<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
 		j.setHorizontalAlignment(JLabel.CENTER);
 		add(j, c);
-
-		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 4;
-		c.gridy = 3;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		add(runButton, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -252,8 +257,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		
-		AC.setToolTipText("<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
+		AC.setToolTipText(
+				"<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
 		add(AC, c);
 
 		c.ipady = 0;
@@ -263,7 +268,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("MQ: ");
-		j.setToolTipText("<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/sdiv - Divide MQ by</html>");
+		j.setToolTipText(
+				"<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/sdiv - Divide MQ by</html>");
 		j.setHorizontalAlignment(JLabel.CENTER);
 		add(j, c);
 
@@ -273,7 +279,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		MQ.setToolTipText("<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/div - Divide MQ by</html>");
+		MQ.setToolTipText(
+				"<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/div - Divide MQ by</html>");
 		add(MQ, c);
 
 		c.ipady = 0;
@@ -283,7 +290,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("X Register: ");
-		j.setToolTipText("<html>28/lax - Load AC into X<br>29/sxm - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
+		j.setToolTipText(
+				"<html>28/lax - Load AC into X<br>29/sxm - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
 		j.setHorizontalAlignment(JLabel.CENTER);
 		add(j, c);
 
@@ -293,7 +301,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		xReg.setToolTipText("<html>28/lax - Load AC into X<br>29/stx - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
+		xReg.setToolTipText(
+				"<html>28/lax - Load AC into X<br>29/stx - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
 		add(xReg, c);
 
 		c.ipady = 0;
@@ -303,7 +312,8 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("Y Register: ");
-		j.setToolTipText("<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
+		j.setToolTipText(
+				"<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
 		j.setHorizontalAlignment(JLabel.CENTER);
 		add(j, c);
 
@@ -313,16 +323,9 @@ public class AssemblyWindow extends JPanel {
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
-		yReg.setToolTipText("<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
+		yReg.setToolTipText(
+				"<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
 		add(yReg, c);
-
-		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
-		c.gridy = 3;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		add(stopRunning, c);
 
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -351,7 +354,28 @@ public class AssemblyWindow extends JPanel {
 		j = new JLabel("© Marston Connell - 2019");
 		j.setHorizontalAlignment(JLabel.LEFT);
 		add(j, c);
-		
+
+		c.insets.left = 2;
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 5;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		add(stopRunning, c);
+
+		c.insets.left = 0;
+		c.insets.right = 2;
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 4;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		add(runButton, c);
+
+		setBorder(font, color);
+
 		runButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -383,11 +407,27 @@ public class AssemblyWindow extends JPanel {
 		f.setVisible(false);
 		f.addKeyListener(new MKeyListener(this));
 
+	}
+
+	public void setBorder(Font f, Color c) {
+		TitledBorder b = BorderFactory.createTitledBorder("Memory Locations and Registries");
+		b.setTitleColor(c);
+		b.setTitleFont(f);
+
+		memp.setBorder(b);
+
+		b = BorderFactory.createTitledBorder("Memory Locations and Registries");
+		b.setTitleColor(c);
+		b.setTitleFont(f);
+		b.setTitle("Code");
+
+		codep.setBorder(b);
 
 	}
 
 	/**
 	 * Displays error wrapper for other classes.
+	 * 
 	 * @author Marston Connell
 	 * @param title
 	 * @param message
@@ -398,6 +438,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Fixes refactors and pointer errors.
+	 * 
 	 * @author Marston Connell
 	 */
 	private void fixCode() {
@@ -518,8 +559,21 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	public boolean checkForErrors() {
+		for (int i = 0; i < 1000; i++) {
+
+			if (((String) mdl.getValueAt(i, 1)).contains("null")) {
+				showError("Compile Error", "Null Pointer error at line: " + i);
+				return false;
+			}
+
+		}
+		return true;
+	}
+
 	/**
 	 * Stops currently running code from running any longer.
+	 * 
 	 * @author Marston Connell
 	 */
 	private void stopCode() {
@@ -528,6 +582,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Compiles code into Machine Code and inserts it into 'memory'.
+	 * 
 	 * @author Marston Connell
 	 */
 	public void compile() {
@@ -752,6 +807,8 @@ public class AssemblyWindow extends JPanel {
 						mdl.setValueAt(commands[i], i, 1);
 					}
 
+					checkForErrors();
+
 				} else {
 					JOptionPane.showMessageDialog(this,
 							"Either switch compile modes in 'Edit' or use proper syntax. You can always check witch syntax to use under 'File' -> 'Help'.",
@@ -764,6 +821,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Wipes code from text pane and all other info in registries.
+	 * 
 	 * @author Marston Connell
 	 */
 	public void clearCode() {
@@ -788,7 +846,9 @@ public class AssemblyWindow extends JPanel {
 	}
 
 	/**
-	 * Reformats code to be copied to use in the 'Mythical Machine' emulator, or just this one.
+	 * Reformats code to be copied to use in the 'Mythical Machine' emulator, or
+	 * just this one.
+	 * 
 	 * @author Marston Connell
 	 * @return All reformatted code
 	 */
@@ -864,6 +924,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Refactors code.
+	 * 
 	 * @author Marston Connell
 	 */
 	public void cleanUp() {
@@ -873,6 +934,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Displays graphics window without double screens.
+	 * 
 	 * @author Marston Connell
 	 */
 	public void displayGraphics() {
@@ -883,10 +945,10 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Starts code running thread.
+	 * 
 	 * @author Marston Connell
 	 */
-	private void runCode() {
-
+	void runCode() {
 		AC.setText("");
 		MQ.setText("");
 		xReg.setText("");
@@ -902,6 +964,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Finds next open space in memory without interfering with pointers.
+	 * 
 	 * @author Marston Connell
 	 * @param array
 	 * @param reserved
