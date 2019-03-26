@@ -94,6 +94,7 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 		getComponent().setSelectedTextColor(getComponent().hasFocus() && getComponent().isEnabled() ? activeForeground : inactiveForeground);
 		getComponent().setForeground(getComponent().hasFocus() && getComponent().isEnabled() ? activeForeground : inactiveForeground);
 		getComponent().setBorder(UIManager.getBorder("TextField.border"));
+		getComponent().repaint();
 	}
 	@Override
 	protected void paintBackground(Graphics g) {
@@ -223,11 +224,12 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 	public void propertyChange(PropertyChangeEvent pce) {
 		super.propertyChange(pce);
 
+//		System.out.println(pce.getPropertyName());
 		if (pce.getPropertyName().equals("selectionColor")) {
 			Color newColor = (Color) pce.getNewValue();
 			if (!newColor.equals(activeBackground) && !newColor.equals(inactiveBackground)) {
 				this.activeBackground = newColor;
-//				getComponent().repaint();
+				getComponent().repaint();
 			}
 		}
 
@@ -235,12 +237,13 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 			Color newColor = (Color) pce.getNewValue();
 			if (!newColor.equals(activeForeground) && !newColor.equals(inactiveForeground)) {
 				this.activeForeground = newColor;
-//				getComponent().repaint();
+				getComponent().repaint();
 			}
 		}
 		if (pce.getPropertyName().equals("background")) {
 			getComponent().repaint();
 		}
+		
 
 	}
 

@@ -417,7 +417,7 @@ public class MaterialLookAndFeel extends BasicLookAndFeel {
 		table.put("CheckBoxMenuItem.foreground", colors.currentText);
 		table.put("CheckBoxMenuItem.border", BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		table.put("CheckBoxMenuItem.checkIcon", new ImageIcon(MaterialImages.UNCHECKED_BOX));
-		table.put("CheckBoxMenuItem.selectedCheckIcon", new ImageIcon(MaterialImages.PAINTED_CHECKED_BOX));
+		table.put("CheckBoxMenuItem.selectedCheckIcon", new ImageIcon(MaterialImages.OUTLINED_CHECKED_BOX));
 
 		table.put("TextPane.border", MaterialBorders.LIGHT_LINE_BORDER);
 		table.put("TextPane.background", colors.currentAccent);

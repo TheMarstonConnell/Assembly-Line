@@ -467,7 +467,7 @@ public class AssemblyMachine {
 		updateLAF(false);
 
 		createAndShowGUI();
-//		loadUserPrefs();
+		loadUserPrefs();
 
 	}
 
@@ -484,6 +484,8 @@ public class AssemblyMachine {
 		if (frame != null) {
 			aw.code.dark = dark;
 			SwingUtilities.updateComponentTreeUI(AssemblyMachine.frame);
+			SwingUtilities.updateComponentTreeUI(helpFrame);
+			SwingUtilities.updateComponentTreeUI(aw.graphicsPane);
 			aw.tln.setCurrentLineForeground(ui.colors.currentText);
 			aw.setBorder(MaterialFonts.REGULAR, ui.colors.currentText);
 			aw.code.updateColor(ui.colors.currentText, ui.colors.currentAccent);
@@ -491,7 +493,7 @@ public class AssemblyMachine {
 			aw.scrollPane.getColumnHeader().setBackground(ui.colors.currentBackground);
 			aw.scrollPane.setBackground(ui.colors.currentBackground);
 			aw.memoryDisplay.setBackground(ui.colors.currentBackground);
-
+			
 		}
 	}
 
