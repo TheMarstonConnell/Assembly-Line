@@ -72,8 +72,8 @@ public class IDETextPane extends JTextPane {
 		});
 
 		highLighter = new LineHighlightPane(this);
-
 		this.setUI(highLighter);
+
 	}
 
 	public void updateColor(Color text, Color background) {

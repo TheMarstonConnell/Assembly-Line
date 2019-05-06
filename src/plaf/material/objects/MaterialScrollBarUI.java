@@ -20,7 +20,12 @@ import java.awt.Graphics;
 public class MaterialScrollBarUI extends BasicScrollBarUI {
 
 	public static ComponentUI createUI (JComponent c) {
+		try {
 		return new MaterialScrollBarUI ();
+		}catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override

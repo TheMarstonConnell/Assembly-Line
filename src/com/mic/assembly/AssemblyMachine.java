@@ -22,6 +22,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -32,6 +35,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -54,24 +58,26 @@ import plaf.material.utils.MaterialFonts;
 /**
  * The main emulator for the entire machine.
  * 
- * @author Marston ConnellE
+ * @author Marston Connell
  *
  */
 public class AssemblyMachine {
 
-	private static AssemblyMachine assemblyMachine;
+	public static AssemblyMachine assemblyMachine;
 
-	public static JFrame frame;
-	static CardLayout cl;
+	public JFrame frame;
+	CardLayout cl;
 	final static String EDITOR = "edit";
 	final static String RUNTIME = "run";
-	static AssemblyWindow aw;
-	static JDialog helpFrame;
-	public static MaterialLookAndFeel ui;
-	static JCheckBoxMenuItem codeStep;
-	static JCheckBoxMenuItem darkModeButton;
-	static JRadioButtonMenuItem assembler;
-	static JRadioButtonMenuItem machine;
+	AssemblyWindow aw;
+	JDialog helpFrame;
+	public MaterialLookAndFeel ui;
+	JCheckBoxMenuItem codeStep;
+	JCheckBoxMenuItem darkModeButton;
+	JRadioButtonMenuItem assembler;
+	JRadioButtonMenuItem machine;
+	public boolean sendStats = false;
+	
 
 	/**
 	 * Initializes Menu bar for frame.
@@ -80,7 +86,7 @@ public class AssemblyMachine {
 	 * @return JMenuBar
 	 * @throws IOException
 	 */
-	private static JMenuBar createMenu() throws IOException {
+	private JMenuBar createMenu() throws IOException {
 
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file = new JMenu("File");
@@ -401,7 +407,7 @@ public class AssemblyMachine {
 	 * @author Marston Connell
 	 * @throws IOException
 	 */
-	private static void createAndShowGUI() throws IOException {
+	private void createAndShowGUI() throws IOException {
 
 		// Create and set up the window.
 		frame = new JFrame("Assembly Line");
@@ -447,6 +453,34 @@ public class AssemblyMachine {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		/**
+		 * Custom debug stream.
+		 */
+		System.setOut(new java.io.PrintStream(System.out) {
+
+			private StackTraceElement getCallSite() {
+				for (StackTraceElement e : Thread.currentThread().getStackTrace())
+					if (!e.getMethodName().equals("getStackTrace") && !e.getClassName().equals(getClass().getName()))
+						return e;
+				return null;
+			}
+
+			@Override
+			public void println(String s) {
+				println((Object) s);
+			}
+
+			@Override
+			public void println(Object o) {
+				StackTraceElement e = getCallSite();
+				String callSite = e == null ? "??"
+						: String.format("%s.%s(%s:%d)", e.getClassName(), e.getMethodName(), e.getFileName(),
+								e.getLineNumber());
+				super.println(callSite.replaceAll("com.mic.assembly.", "") + ":" + o);
+			}
+		});
+		
 		try {
 			assemblyMachine = new AssemblyMachine();
 		} catch (IOException e) {
@@ -455,7 +489,7 @@ public class AssemblyMachine {
 
 	}
 
-	private static void updateLAF(boolean dark) {
+	private void updateLAF(boolean dark) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
 		ui = new MaterialLookAndFeel(dark);
@@ -467,7 +501,7 @@ public class AssemblyMachine {
 
 		if (frame != null) {
 			aw.code.dark = dark;
-			SwingUtilities.updateComponentTreeUI(AssemblyMachine.frame);
+			SwingUtilities.updateComponentTreeUI(frame);
 			SwingUtilities.updateComponentTreeUI(helpFrame);
 			SwingUtilities.updateComponentTreeUI(aw.graphicsPane);
 			aw.tln.setCurrentLineForeground(ui.colors.currentText);
@@ -486,13 +520,13 @@ public class AssemblyMachine {
 	 * 
 	 * @author Marston Connell
 	 */
-	private static void copy() {
+	private void copy() {
 		StringSelection stringSelection = new StringSelection(aw.copyCode());
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(stringSelection, null);
 	}
 
-	public static void saveUserPrefs() {
+	public void saveUserPrefs() {
 		File dir = getAppData();
 		dir.mkdirs();
 
@@ -502,33 +536,68 @@ public class AssemblyMachine {
 		}
 
 	}
+	
+	
+	public static void LogError(Exception e) {
+		File dir = new File(getAppData(), "logs");
+		dir.mkdirs();
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date date = new Date();
+		try (PrintWriter out = new PrintWriter(new File(dir, dateFormat.format(date) + ".log"))) {
+			out.print(e.toString());
+			out.close();
+		} catch (FileNotFoundException e1) {
+			
+		}
+		
+		assemblyMachine.aw.showMessage("Error Report", "Find the log at %appdata%/AssemblyLine/logs/ with this time and date. Please upload contents of file to https://github.com/TheMarstonConnell/Assembly-Line/issues.");
+		
+		
+		
+	}
 
-	public static void loadUserPrefs() {
+	public void loadUserPrefs() {
 		File dir = getAppData();
 		boolean useNums = true;
 		boolean darkMode = false;
 		boolean step = false;
 		BufferedReader reader;
-		try {
-			reader = new BufferedReader(new FileReader(new File(dir, "userData.dat")));
-			int x = 0;
-			String line = reader.readLine();
-			while (line != null) {
-				switch (x) {
-				case 0:
-					useNums = Boolean.parseBoolean(line.trim());
-					break;
-				case 1:
-					darkMode = Boolean.parseBoolean(line.trim());
-					break;
-				case 2:
-					step = Boolean.parseBoolean(line.trim());
-					break;
+		File readingFile = new File(dir, "userData.dat");
+		if (readingFile.exists()) {
+			try {
+				reader = new BufferedReader(new FileReader(readingFile));
+				int x = 0;
+				String line = reader.readLine();
+				while (line != null) {
+					switch (x) {
+					case 0:
+						useNums = Boolean.parseBoolean(line.trim());
+						break;
+					case 1:
+						darkMode = Boolean.parseBoolean(line.trim());
+						break;
+					case 2:
+						step = Boolean.parseBoolean(line.trim());
+						break;
+					}
+					x++;
+					System.out.println(line);
+					line = reader.readLine();
 				}
-				x++;
-				System.out.println(line);
-				line = reader.readLine();
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		} else {
+			runFirstTimeSetUp();
+		}
+
+		readingFile = new File(dir, "tos.dat");
+		try {
+			reader = new BufferedReader(new FileReader(readingFile));
+			String line = reader.readLine();
+			sendStats = Boolean.parseBoolean(line.trim());
+			System.out.println(sendStats);
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -537,9 +606,9 @@ public class AssemblyMachine {
 		aw.darkmode = darkMode;
 		darkModeButton.setSelected(darkMode);
 		try {
-		updateLAF(aw.darkmode);
-		}catch(Exception e) {
-			
+			updateLAF(aw.darkmode);
+		} catch (Exception e) {
+
 		}
 		aw.code.update();
 		codeStep.setSelected(step);
@@ -559,6 +628,30 @@ public class AssemblyMachine {
 			machine.setSelected(false);
 			assembler.setSelected(true);
 		}
+	}
+
+	private void runFirstTimeSetUp() {
+
+		Object[] options = { "Send data", "Don't Send" };
+		int n = JOptionPane.showOptionDialog(frame,
+				"Would you like to send all error data to our servers to better improve our software?",
+				"Error Tracking", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[1]);
+
+		File dir = getAppData();
+		dir.mkdirs();
+
+		try (PrintWriter out = new PrintWriter(new File(dir, "tos.dat"))) {
+			out.println(n == 0);
+
+		} catch (FileNotFoundException e1) {
+		}
+
+		try (PrintWriter out = new PrintWriter(new File(dir, "userData.dat"))) {
+			out.println(aw.useNums + System.lineSeparator() + aw.darkmode + System.lineSeparator() + aw.stepCode);
+		} catch (FileNotFoundException e1) {
+		}
+
 	}
 
 	private static File getAppData() {

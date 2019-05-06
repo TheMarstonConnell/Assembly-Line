@@ -109,33 +109,6 @@ public class AssemblyWindow extends JPanel {
 	public AssemblyWindow(Color color, Font font) {
 		super(new GridBagLayout());
 
-		/**
-		 * Custom debug stream.
-		 */
-		System.setOut(new java.io.PrintStream(System.out) {
-
-			private StackTraceElement getCallSite() {
-				for (StackTraceElement e : Thread.currentThread().getStackTrace())
-					if (!e.getMethodName().equals("getStackTrace") && !e.getClassName().equals(getClass().getName()))
-						return e;
-				return null;
-			}
-
-			@Override
-			public void println(String s) {
-				println((Object) s);
-			}
-
-			@Override
-			public void println(Object o) {
-				StackTraceElement e = getCallSite();
-				String callSite = e == null ? "??"
-						: String.format("%s.%s(%s:%d)", e.getClassName(), e.getMethodName(), e.getFileName(),
-								e.getLineNumber());
-				super.println(callSite.replaceAll("com.mic.assembly.", "") + ":" + o);
-			}
-		});
-
 		commands = new String[1000];
 		pointers = new HashMap<String, Integer>();
 
@@ -435,6 +408,17 @@ public class AssemblyWindow extends JPanel {
 	public void showError(String title, String message) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 	}
+	
+	/**
+	 * Displays a simple message to user.
+	 * 
+	 * @author Marston Connell
+	 * @param title
+	 * @param message
+	 */
+	public void showMessage(String title, String message) {
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.PLAIN_MESSAGE);
+	}
 
 	/**
 	 * Fixes refactors and pointer errors.
@@ -586,237 +570,246 @@ public class AssemblyWindow extends JPanel {
 	 * @author Marston Connell
 	 */
 	public void compile() {
-		errors = new HashMap<String, Integer>();
-		pointers.clear();
-		for (int x = 0; x < commands.length; x++) {
-			commands[x] = "";
-		}
-		String codeo = code.getText();
-		String[] lines = codeo.split("\n");
-		if (codeo.equals("")) {
-			JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
-					JOptionPane.WARNING_MESSAGE);
-		} else {
-			if (useNums) {
-				// When using number opcodes and registries
-
-				int j = 0;
-				for (String line : lines) {
-					if (!(j >= 999)) {
-						if (line.charAt(0) == '#') {
-
-							line = " ";
-
-						}
-
-						int ln = line.indexOf('#');
-						if (ln < 0) {
-							ln = line.length();
-						}
-						boolean neg = false;
-						if (line.trim().charAt(0) == '-') {
-							neg = true;
-						}
-						commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
-						if (neg) {
-							line = "-" + line;
-						}
-					}
-					j++;
-				}
-
-				for (int i = 0; i < commands.length; i++) {
-					mdl.setValueAt(commands[i], i, 1);
-				}
-
+			errors = new HashMap<String, Integer>();
+			pointers.clear();
+			for (int x = 0; x < commands.length; x++) {
+				commands[x] = "";
+			}
+			String codeo = code.getText();
+			String[] lines = codeo.split("\n");
+			if (codeo.equals("")) {
+				JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
+						JOptionPane.WARNING_MESSAGE);
 			} else {
-
-				// When using text opcodes rather than number codes
-
-				if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
+				if (useNums) {
+					// When using number opcodes and registries
 
 					int j = 0;
-					for (int x = 0; x < lines.length; x++) {
-						String line = lines[x];
-
+					for (String line : lines) {
 						if (!(j >= 999)) {
 							if (line.charAt(0) == '#') {
-								line = "";
-							}
 
-							line = line.replaceAll("\t", "");
-							line = line.replaceAll("=", "");
-							line = line.replaceAll("\\s+", "");
-							int openSpace = findOpenSpace(commands, j);
-
-							int oldIndex = j;
-							String command = "";
-
-							if (!line.equals("")) {
-
-								boolean complete = false;
-								String translation = null;
-								while (!complete) {
-									translation = line.trim().substring(0, 3);
-									complete = true;
-									if (translation.equals("inp")) {
-										command = command + "01";
-										j++;
-									} else if (translation.equals("out")) {
-										command = command + "02";
-									} else if (translation.equals("lda")) {
-										command = command + "03";
-									} else if (translation.equals("sta")) {
-										command = command + "04";
-										j++;
-									} else if (translation.equals("ldm")) {
-										command = command + "05";
-									} else if (translation.equals("stm")) {
-										command = command + "06";
-										j++;
-									} else if (translation.equals("add")) {
-										command = command + "07";
-									} else if (translation.equals("sub")) {
-										command = command + "08";
-									} else if (translation.equals("mul")) {
-										command = command + "09";
-									} else if (translation.equals("div")) {
-										command = command + "10";
-									} else if (translation.equals("key")) {
-										command = command + "11";
-										j++;
-									} else if (translation.equals("tra")) {
-										command = command + "21";
-									} else if (translation.equals("tre")) {
-										command = command + "22";
-									} else if (translation.equals("tne")) {
-										command = command + "23";
-									} else if (translation.equals("tlt")) {
-										command = command + "24";
-									} else if (translation.equals("tgt")) {
-										command = command + "25";
-									} else if (translation.equals("tle")) {
-										command = command + "26";
-									} else if (translation.equals("tge")) {
-										command = command + "27";
-									} else if (translation.equals("lal")) {
-										command = command + "-21";
-									} else if (translation.equals("lml")) {
-										command = command + "-22";
-									} else if (translation.equals("adl")) {
-										command = command + "-23";
-									} else if (translation.equals("sbl")) {
-										command = command + "-24";
-									} else if (translation.equals("mpl")) {
-										command = command + "-25";
-									} else if (translation.equals("dvl")) {
-										command = command + "-26";
-									} else if (translation.equals("lax")) {
-										command = command + "28";
-									} else if (translation.equals("stx")) {
-										command = command + "29";
-									} else if (translation.equals("inx")) {
-										command = command + "31";
-									} else if (translation.equals("dex")) {
-										command = command + "32";
-									} else if (translation.equals("lay")) {
-										command = command + "-28";
-									} else if (translation.equals("sty")) {
-										command = command + "-29";
-									} else if (translation.equals("iny")) {
-										command = command + "-31";
-									} else if (translation.equals("dey")) {
-										command = command + "-32";
-									} else if (translation.equals("gsb")) {
-										command = command + "-27";
-									} else if (translation.equals("ret")) {
-										command = command + "-30";
-									} else if (translation.equals("def")) {
-										command = command + "30";
-									} else if (translation.equals("end")) {
-										command = command + "00";
-									} else if (translation.equals("rep")) {
-										command = command + "40";
-									} else if (translation.equals("drw")) {
-										command = command + "41";
-									} else if (translation.equals("cxp")) {
-										command = command + "43";
-									} else if (translation.equals("cyp")) {
-										command = command + "44";
-									} else if (translation.equals("red")) {
-										command = command + "45";
-									} else if (translation.equals("grn")) {
-										command = command + "46";
-									} else if (translation.equals("blu")) {
-										command = command + "47";
-									} else {
-
-										complete = false;
-										pointers.put(translation, oldIndex);
-										line = line.substring(3);
-									}
-
-								}
-
-								int ln = line.indexOf('#');
-								if (ln < 0) {
-									ln = line.length();
-								}
-
-								if (translation.equals("inp") || translation.equals("sta") || translation.equals("stm")
-										|| translation.equals("key")) {
-									if (!pointers.containsKey(line.substring(3, ln).trim())) {
-										command = command + String.format("%03d", openSpace);
-										pointers.put(line.substring(3, ln).trim(), openSpace);
-									} else {
-										command = command
-												+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
-									}
-								} else if (translation.equals("lal") || translation.equals("lml")
-										|| translation.equals("adl") || translation.equals("sbl")
-										|| translation.equals("mpl") || translation.equals("dvl")) {
-									command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
-								} else if (translation.equals("end") || translation.equals("lax")
-										|| translation.equals("stx") || translation.equals("inx")
-										|| translation.equals("dex") || translation.equals("lay")
-										|| translation.equals("sty") || translation.equals("iny")
-										|| translation.equals("dey") || translation.equals("rep")
-										|| translation.equals("drw")) {
-									command = command + "000";
-								} else {
-									if (pointers.get(line.substring(3, ln).trim()) == null) {
-
-										errors.put(line, oldIndex);
-									} else {
-										command = command
-												+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
-									}
-								}
+								line = " ";
 
 							}
 
-							commands[oldIndex] = command;
-							j++;
+							int ln = line.indexOf('#');
+							if (ln < 0) {
+								ln = line.length();
+							}
+							boolean neg = false;
+							if (line.trim().charAt(0) == '-') {
+								neg = true;
+							}
+							commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
+							if (neg) {
+								line = "-" + line;
+							}
 						}
-
+						j++;
 					}
-
-					fixCode();
 
 					for (int i = 0; i < commands.length; i++) {
 						mdl.setValueAt(commands[i], i, 1);
 					}
 
-					checkForErrors();
-
 				} else {
-					JOptionPane.showMessageDialog(this,
-							"Either switch compile modes in 'Edit' or use proper syntax. You can always check witch syntax to use under 'File' -> 'Help'.",
-							"Compile Error", JOptionPane.WARNING_MESSAGE);
+
+					// When using text opcodes rather than number codes
+
+					if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
+
+						int j = 0;
+						for (int x = 0; x < lines.length; x++) {
+							String line = lines[x];
+
+							if (!(j >= 999)) {
+								if (line.charAt(0) == '#') {
+									line = "";
+								}
+
+								line = line.replaceAll("\t", "");
+								line = line.replaceAll("=", "");
+								line = line.replaceAll("\\s+", "");
+								int openSpace = findOpenSpace(commands, j);
+
+								int oldIndex = j;
+								String command = "";
+
+								if (!line.equals("")) {
+
+									boolean complete = false;
+									String translation = null;
+									while (!complete) {
+										try {
+											translation = line.trim().substring(0, 3);
+										} catch (StringIndexOutOfBoundsException sie) {
+											showError("No Valid Commands", "No valid command found on line: " + x);
+										}
+										complete = true;
+										if (translation.equals("inp")) {
+											command = command + "01";
+											j++;
+										} else if (translation.equals("out")) {
+											command = command + "02";
+										} else if (translation.equals("lda")) {
+											command = command + "03";
+										} else if (translation.equals("sta")) {
+											command = command + "04";
+											j++;
+										} else if (translation.equals("ldm")) {
+											command = command + "05";
+										} else if (translation.equals("stm")) {
+											command = command + "06";
+											j++;
+										} else if (translation.equals("add")) {
+											command = command + "07";
+										} else if (translation.equals("sub")) {
+											command = command + "08";
+										} else if (translation.equals("mul")) {
+											command = command + "09";
+										} else if (translation.equals("div")) {
+											command = command + "10";
+										} else if (translation.equals("key")) {
+											command = command + "11";
+											j++;
+										} else if (translation.equals("tra")) {
+											command = command + "21";
+										} else if (translation.equals("tre")) {
+											command = command + "22";
+										} else if (translation.equals("tne")) {
+											command = command + "23";
+										} else if (translation.equals("tlt")) {
+											command = command + "24";
+										} else if (translation.equals("tgt")) {
+											command = command + "25";
+										} else if (translation.equals("tle")) {
+											command = command + "26";
+										} else if (translation.equals("tge")) {
+											command = command + "27";
+										} else if (translation.equals("lal")) {
+											command = command + "-21";
+										} else if (translation.equals("lml")) {
+											command = command + "-22";
+										} else if (translation.equals("adl")) {
+											command = command + "-23";
+										} else if (translation.equals("sbl")) {
+											command = command + "-24";
+										} else if (translation.equals("mpl")) {
+											command = command + "-25";
+										} else if (translation.equals("dvl")) {
+											command = command + "-26";
+										} else if (translation.equals("lax")) {
+											command = command + "28";
+										} else if (translation.equals("stx")) {
+											command = command + "29";
+										} else if (translation.equals("inx")) {
+											command = command + "31";
+										} else if (translation.equals("dex")) {
+											command = command + "32";
+										} else if (translation.equals("lay")) {
+											command = command + "-28";
+										} else if (translation.equals("sty")) {
+											command = command + "-29";
+										} else if (translation.equals("iny")) {
+											command = command + "-31";
+										} else if (translation.equals("dey")) {
+											command = command + "-32";
+										} else if (translation.equals("gsb")) {
+											command = command + "-27";
+										} else if (translation.equals("ret")) {
+											command = command + "-30";
+										} else if (translation.equals("def")) {
+											command = command + "30";
+										} else if (translation.equals("end")) {
+											command = command + "00";
+										} else if (translation.equals("rep")) {
+											command = command + "40";
+										} else if (translation.equals("drw")) {
+											command = command + "41";
+										} else if (translation.equals("cxp")) {
+											command = command + "43";
+										} else if (translation.equals("cyp")) {
+											command = command + "44";
+										} else if (translation.equals("red")) {
+											command = command + "45";
+										} else if (translation.equals("grn")) {
+											command = command + "46";
+										} else if (translation.equals("blu")) {
+											command = command + "47";
+										} else {
+
+											complete = false;
+											pointers.put(translation, oldIndex);
+											line = line.substring(3);
+										}
+
+									}
+
+									int ln = line.indexOf('#');
+									if (ln < 0) {
+										ln = line.length();
+									}
+
+									if (translation.equals("inp") || translation.equals("sta")
+											|| translation.equals("stm") || translation.equals("key")) {
+										if (!pointers.containsKey(line.substring(3, ln).trim())) {
+											command = command + String.format("%03d", openSpace);
+											pointers.put(line.substring(3, ln).trim(), openSpace);
+										} else {
+											command = command
+													+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+										}
+									} else if (translation.equals("lal") || translation.equals("lml")
+											|| translation.equals("adl") || translation.equals("sbl")
+											|| translation.equals("mpl") || translation.equals("dvl")) {
+										command = command
+												+ String.format("%03d", Integer.valueOf(line.substring(3, ln)));
+									} else if (translation.equals("end") || translation.equals("lax")
+											|| translation.equals("stx") || translation.equals("inx")
+											|| translation.equals("dex") || translation.equals("lay")
+											|| translation.equals("sty") || translation.equals("iny")
+											|| translation.equals("dey") || translation.equals("rep")
+											|| translation.equals("drw")) {
+										command = command + "000";
+									} else {
+										if (pointers.get(line.substring(3, ln).trim()) == null) {
+
+											errors.put(line, oldIndex);
+										} else {
+											command = command
+													+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+										}
+									}
+
+								}
+
+								commands[oldIndex] = command;
+								j++;
+							}
+
+						}
+
+						fixCode();
+
+						for (int i = 0; i < commands.length; i++) {
+							mdl.setValueAt(commands[i], i, 1);
+						}
+
+						checkForErrors();
+
+					} else {
+						JOptionPane.showMessageDialog(this,
+								"Either switch compile modes in 'Edit' or use proper syntax. You can always check witch syntax to use under 'File' -> 'Help'.",
+								"Compile Error", JOptionPane.WARNING_MESSAGE);
+					}
 				}
 			}
-		}
-
+	}
+	
+	public void logError(Exception e) {
+		AssemblyMachine.LogError(e);
+		
 	}
 
 	/**

@@ -32,13 +32,13 @@ public class MaterialBorders {
             Color shadow;
 
             if (c instanceof JInternalFrame && ((JInternalFrame)c).isSelected()) {
-                background = AssemblyMachine.ui.colors.currentPrimary;
-                highlight = AssemblyMachine.ui.colors.currentPrimaryLight;
-                shadow = AssemblyMachine.ui.colors.currentPrimaryDark;
+                background = AssemblyMachine.assemblyMachine.ui.colors.currentPrimary;
+                highlight = AssemblyMachine.assemblyMachine.ui.colors.currentPrimaryLight;
+                shadow = AssemblyMachine.assemblyMachine.ui.colors.currentPrimaryDark;
             } else {
-            	background = AssemblyMachine.ui.colors.currentPrimary;
-                highlight = AssemblyMachine.ui.colors.currentPrimaryLight;
-                shadow = AssemblyMachine.ui.colors.currentPrimaryDark;
+            	background = AssemblyMachine.assemblyMachine.ui.colors.currentPrimary;
+                highlight = AssemblyMachine.assemblyMachine.ui.colors.currentPrimaryLight;
+                shadow = AssemblyMachine.assemblyMachine.ui.colors.currentPrimaryDark;
             }
 
               g.setColor(background);
