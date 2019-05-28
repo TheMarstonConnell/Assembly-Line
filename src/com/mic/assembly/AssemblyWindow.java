@@ -67,7 +67,8 @@ public class AssemblyWindow extends JPanel {
 	JPanel codep;
 	JPanel memp;
 	JScrollPane memoryDisplay;
-
+	ComputerDiagram cd;
+	
 	JTextField input;
 	private JDialog f = null;
 	JTextField AC;
@@ -106,7 +107,7 @@ public class AssemblyWindow extends JPanel {
 	 * 
 	 * @author Marston Connell
 	 */
-	public AssemblyWindow(Color color, Font font) {
+	public AssemblyWindow(Font font) {
 		super(new GridBagLayout());
 
 		commands = new String[1000];
@@ -143,7 +144,7 @@ public class AssemblyWindow extends JPanel {
 		memory.setModel(mdl);
 
 		memoryDisplay = new JScrollPane(memory);
-		memoryDisplay.setPreferredSize(new Dimension(360, 300));
+		memoryDisplay.setPreferredSize(new Dimension(220, 300));
 
 		graphicsPane = new DrawingPane();
 		graphicsPane.setPreferredSize(new Dimension(400, 300));
@@ -164,6 +165,7 @@ public class AssemblyWindow extends JPanel {
 		xReg = new JTextField();
 		xReg.setEditable(false);
 		xReg.setOpaque(false);
+
 		yReg = new JTextField();
 		yReg.setEditable(false);
 		yReg.setOpaque(false);
@@ -172,7 +174,7 @@ public class AssemblyWindow extends JPanel {
 		input.setEditable(false);
 		input.setOpaque(false);
 
-		JButton stopRunning = new JButton("      Stop      ");
+		JButton stopRunning = new JButton("Stop");
 		stopRunning.addActionListener(new ActionListener() {
 
 			@Override
@@ -181,173 +183,207 @@ public class AssemblyWindow extends JPanel {
 			}
 
 		});
+		
+		JPanel registers = new JPanel(new GridBagLayout());
 
 		// Add Components to this panel.
 		codep = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.ipady = 0;
-		c.gridx = 0;
+		c.gridx = 2;
 		c.gridy = 0;
 		c.gridwidth = 3;
-		c.gridheight = 1;
+		c.gridheight = 6;
 		codep.add(scrollPane);
 		add(codep, c);
 
 		memp = new JPanel();
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 4;
+		c.gridx = 5;
 		c.gridy = 0;
-		c.gridwidth = 4;
-		c.gridheight = 1;
+		c.gridwidth = 1;
+		c.gridheight = 6;
 		memp.add(memoryDisplay);
 		add(memp, c);
 
+		c.insets.left = 2;
+		c.insets.right = 2;
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 1;
+		c.gridx = 2;
+		c.gridy = 7;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		add(compileCode, c);
 
+		c.insets.left = 0;
+		c.insets.right = 0;
+		c.ipadx = 0;
 		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 4;
-		c.gridy = 1;
+		c.gridx = 0;
+		c.gridy = 0;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		JLabel j = new JLabel("AC: ");
 		j.setToolTipText(
 				"<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
-		j.setHorizontalAlignment(JLabel.CENTER);
-		add(j, c);
+		j.setHorizontalAlignment(JLabel.LEFT);
+		registers.add(j, c);
 
 		c.ipady = 0;
+		c.ipadx = 40;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
-		c.gridy = 1;
+		c.gridx = 1;
+		c.gridy = 0;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		AC.setToolTipText(
 				"<html>03/lda - Load into AC<br>04/sta - Store from AC<br>07/add - Adds to AC<br>08/sub - Subtract from AC</html>");
-		add(AC, c);
+		registers.add(AC, c);
 
 		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 6;
+		c.ipadx = 0;
+		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("MQ: ");
 		j.setToolTipText(
 				"<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/sdiv - Divide MQ by</html>");
-		j.setHorizontalAlignment(JLabel.CENTER);
-		add(j, c);
+		j.setHorizontalAlignment(JLabel.LEFT);
+		registers.add(j, c);
 
 		c.ipady = 0;
+		c.ipadx = 40;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 7;
+		c.gridx = 1;
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		MQ.setToolTipText(
 				"<html>05/ldm - Load into MQ<br>06/stm - Store from MQ<br>09/mul - Multiplies MQ by<br>10/div - Divide MQ by</html>");
-		add(MQ, c);
+		registers.add(MQ, c);
 
+		c.ipadx = 0;
 		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 4;
+		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("X Register: ");
 		j.setToolTipText(
 				"<html>28/lax - Load AC into X<br>29/sxm - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
-		j.setHorizontalAlignment(JLabel.CENTER);
-		add(j, c);
+		j.setHorizontalAlignment(JLabel.LEFT);
+		registers.add(j, c);
 
 		c.ipady = 0;
+		c.ipadx = 40;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
+		c.gridx = 1;
 		c.gridy = 2;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		xReg.setToolTipText(
 				"<html>28/lax - Load AC into X<br>29/stx - Store X into AC<br>31/inx - Increments X by 1<br>32/dex - Decrement X by 1</html>");
-		add(xReg, c);
+		registers.add(xReg, c);
 
+		c.ipadx = 0;
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 6;
-		c.gridy = 2;
+		c.gridx = 0;
+		c.gridy = 3;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("Y Register: ");
 		j.setToolTipText(
 				"<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
-		j.setHorizontalAlignment(JLabel.CENTER);
-		add(j, c);
+		j.setHorizontalAlignment(JLabel.LEFT);
+		registers.add(j, c);
 
 		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 7;
-		c.gridy = 2;
+		c.ipadx = 40;
+		c.gridx = 1;
+		c.gridy = 3;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		yReg.setToolTipText(
 				"<html>-28/lay - Load AC into Y<br>-29/sty - Store Y into AC<br>-31/iny - Increments Y by 1<br>-32/dey - Decrement Y by 1</html>");
-		add(yReg, c);
+		registers.add(yReg, c);
 
+		c.ipadx = 0;
 		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 6;
-		c.gridy = 3;
+		c.gridx = 0;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		j = new JLabel("Output: ");
-		j.setHorizontalAlignment(JLabel.CENTER);
-		add(j, c);
+		j.setHorizontalAlignment(JLabel.LEFT);
+		registers.add(j, c);
+		
+		c.ipadx = 0;
+		c.ipady = 0;
+		c.gridx = 0;
+		c.gridy = 4;
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 2;
+		c.gridheight = 3;
+		cd = new ComputerDiagram();
+//		cd.setMinimumSize(new Dimension(0, 200));
+		add(cd, c);
 
 		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 7;
-		c.gridy = 3;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		add(input, c);
-
-		c.ipady = 0;
+		c.ipadx = 40;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
-		c.gridy = 3;
+		c.gridy = 4;
 		c.gridwidth = 1;
+		c.gridheight = 1;
+		registers.add(input, c);
+
+		
+		c.ipady = 0;
+		c.ipadx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		c.gridheight = 3;
+		add(registers, c);
+		
+		
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 7;
+		c.gridwidth = 2;
 		c.gridheight = 1;
 		j = new JLabel("© Marston Connell - 2019");
 		j.setHorizontalAlignment(JLabel.LEFT);
 		add(j, c);
 
 		c.insets.left = 2;
-		c.ipady = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
-		c.gridy = 3;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-		add(stopRunning, c);
-
-		c.insets.left = 0;
 		c.insets.right = 2;
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 4;
-		c.gridy = 3;
+		c.gridy = 7;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		add(stopRunning, c);
+
+		c.insets.left = 2;
+		c.insets.right = 2;
+		c.ipady = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 3;
+		c.gridy = 7;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		add(runButton, c);
 
-		setBorder(font, color);
+		setBorder(font, Color.black);
 
 		runButton.addActionListener(new ActionListener() {
 
@@ -408,7 +444,7 @@ public class AssemblyWindow extends JPanel {
 	public void showError(String title, String message) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	/**
 	 * Displays a simple message to user.
 	 * 
@@ -561,7 +597,9 @@ public class AssemblyWindow extends JPanel {
 	 * @author Marston Connell
 	 */
 	private void stopCode() {
-		rt.run = false;
+		if (rt != null) {
+			rt.run = false;
+		}
 	}
 
 	/**
@@ -570,246 +608,245 @@ public class AssemblyWindow extends JPanel {
 	 * @author Marston Connell
 	 */
 	public void compile() {
-			errors = new HashMap<String, Integer>();
-			pointers.clear();
-			for (int x = 0; x < commands.length; x++) {
-				commands[x] = "";
-			}
-			String codeo = code.getText();
-			String[] lines = codeo.split("\n");
-			if (codeo.equals("")) {
-				JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
-						JOptionPane.WARNING_MESSAGE);
+		errors = new HashMap<String, Integer>();
+		pointers.clear();
+		for (int x = 0; x < commands.length; x++) {
+			commands[x] = "";
+		}
+		String codeo = code.getText();
+		String[] lines = codeo.split("\n");
+		if (codeo.equals("")) {
+			JOptionPane.showMessageDialog(this, "Please enter code before attempting to compile.", "Compile Error",
+					JOptionPane.WARNING_MESSAGE);
+		} else {
+			if (useNums) {
+				// When using number opcodes and registries
+
+				int j = 0;
+				for (String line : lines) {
+					if (!(j >= 999)) {
+						if (line.charAt(0) == '#') {
+
+							line = " ";
+
+						}
+
+						int ln = line.indexOf('#');
+						if (ln < 0) {
+							ln = line.length();
+						}
+						boolean neg = false;
+						if (line.trim().charAt(0) == '-') {
+							neg = true;
+						}
+						commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
+						if (neg) {
+							line = "-" + line;
+						}
+					}
+					j++;
+				}
+
+				for (int i = 0; i < commands.length; i++) {
+					mdl.setValueAt(commands[i], i, 1);
+				}
+
 			} else {
-				if (useNums) {
-					// When using number opcodes and registries
+
+				// When using text opcodes rather than number codes
+
+				if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
 
 					int j = 0;
-					for (String line : lines) {
+					for (int x = 0; x < lines.length; x++) {
+						String line = lines[x];
+
 						if (!(j >= 999)) {
 							if (line.charAt(0) == '#') {
-
-								line = " ";
-
+								line = "";
 							}
 
-							int ln = line.indexOf('#');
-							if (ln < 0) {
-								ln = line.length();
+							line = line.replaceAll("\t", "");
+							line = line.replaceAll("=", "");
+							line = line.replaceAll("\\s+", "");
+							int openSpace = findOpenSpace(commands, j);
+
+							int oldIndex = j;
+							String command = "";
+
+							if (!line.equals("")) {
+
+								boolean complete = false;
+								String translation = null;
+								while (!complete) {
+									try {
+										translation = line.trim().substring(0, 3);
+									} catch (StringIndexOutOfBoundsException sie) {
+										showError("No Valid Commands", "No valid command found on line: " + x);
+									}
+									complete = true;
+									if (translation.equals("inp")) {
+										command = command + "01";
+										j++;
+									} else if (translation.equals("out")) {
+										command = command + "02";
+									} else if (translation.equals("lda")) {
+										command = command + "03";
+									} else if (translation.equals("sta")) {
+										command = command + "04";
+										j++;
+									} else if (translation.equals("ldm")) {
+										command = command + "05";
+									} else if (translation.equals("stm")) {
+										command = command + "06";
+										j++;
+									} else if (translation.equals("add")) {
+										command = command + "07";
+									} else if (translation.equals("sub")) {
+										command = command + "08";
+									} else if (translation.equals("mul")) {
+										command = command + "09";
+									} else if (translation.equals("div")) {
+										command = command + "10";
+									} else if (translation.equals("key")) {
+										command = command + "11";
+										j++;
+									} else if (translation.equals("tra")) {
+										command = command + "21";
+									} else if (translation.equals("tre")) {
+										command = command + "22";
+									} else if (translation.equals("tne")) {
+										command = command + "23";
+									} else if (translation.equals("tlt")) {
+										command = command + "24";
+									} else if (translation.equals("tgt")) {
+										command = command + "25";
+									} else if (translation.equals("tle")) {
+										command = command + "26";
+									} else if (translation.equals("tge")) {
+										command = command + "27";
+									} else if (translation.equals("lal")) {
+										command = command + "-21";
+									} else if (translation.equals("lml")) {
+										command = command + "-22";
+									} else if (translation.equals("adl")) {
+										command = command + "-23";
+									} else if (translation.equals("sbl")) {
+										command = command + "-24";
+									} else if (translation.equals("mpl")) {
+										command = command + "-25";
+									} else if (translation.equals("dvl")) {
+										command = command + "-26";
+									} else if (translation.equals("lax")) {
+										command = command + "28";
+									} else if (translation.equals("stx")) {
+										command = command + "29";
+									} else if (translation.equals("inx")) {
+										command = command + "31";
+									} else if (translation.equals("dex")) {
+										command = command + "32";
+									} else if (translation.equals("lay")) {
+										command = command + "-28";
+									} else if (translation.equals("sty")) {
+										command = command + "-29";
+									} else if (translation.equals("iny")) {
+										command = command + "-31";
+									} else if (translation.equals("dey")) {
+										command = command + "-32";
+									} else if (translation.equals("gsb")) {
+										command = command + "-27";
+									} else if (translation.equals("ret")) {
+										command = command + "-30";
+									} else if (translation.equals("def")) {
+										command = command + "30";
+									} else if (translation.equals("end")) {
+										command = command + "00";
+									} else if (translation.equals("rep")) {
+										command = command + "40";
+									} else if (translation.equals("drw")) {
+										command = command + "41";
+									} else if (translation.equals("cxp")) {
+										command = command + "43";
+									} else if (translation.equals("cyp")) {
+										command = command + "44";
+									} else if (translation.equals("red")) {
+										command = command + "45";
+									} else if (translation.equals("grn")) {
+										command = command + "46";
+									} else if (translation.equals("blu")) {
+										command = command + "47";
+									} else {
+
+										complete = false;
+										pointers.put(translation, oldIndex);
+										line = line.substring(3);
+									}
+
+								}
+
+								int ln = line.indexOf('#');
+								if (ln < 0) {
+									ln = line.length();
+								}
+
+								if (translation.equals("inp") || translation.equals("sta") || translation.equals("stm")
+										|| translation.equals("key")) {
+									if (!pointers.containsKey(line.substring(3, ln).trim())) {
+										command = command + String.format("%03d", openSpace);
+										pointers.put(line.substring(3, ln).trim(), openSpace);
+									} else {
+										command = command
+												+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+									}
+								} else if (translation.equals("lal") || translation.equals("lml")
+										|| translation.equals("adl") || translation.equals("sbl")
+										|| translation.equals("mpl") || translation.equals("dvl")) {
+									command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
+								} else if (translation.equals("end") || translation.equals("lax")
+										|| translation.equals("stx") || translation.equals("inx")
+										|| translation.equals("dex") || translation.equals("lay")
+										|| translation.equals("sty") || translation.equals("iny")
+										|| translation.equals("dey") || translation.equals("rep")
+										|| translation.equals("drw")) {
+									command = command + "000";
+								} else {
+									if (pointers.get(line.substring(3, ln).trim()) == null) {
+
+										errors.put(line, oldIndex);
+									} else {
+										command = command
+												+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
+									}
+								}
+
 							}
-							boolean neg = false;
-							if (line.trim().charAt(0) == '-') {
-								neg = true;
-							}
-							commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
-							if (neg) {
-								line = "-" + line;
-							}
+
+							commands[oldIndex] = command;
+							j++;
 						}
-						j++;
+
 					}
+
+					fixCode();
 
 					for (int i = 0; i < commands.length; i++) {
 						mdl.setValueAt(commands[i], i, 1);
 					}
 
+					checkForErrors();
+
 				} else {
-
-					// When using text opcodes rather than number codes
-
-					if (!code.getText().replaceAll("\\d", "").trim().equals("")) {
-
-						int j = 0;
-						for (int x = 0; x < lines.length; x++) {
-							String line = lines[x];
-
-							if (!(j >= 999)) {
-								if (line.charAt(0) == '#') {
-									line = "";
-								}
-
-								line = line.replaceAll("\t", "");
-								line = line.replaceAll("=", "");
-								line = line.replaceAll("\\s+", "");
-								int openSpace = findOpenSpace(commands, j);
-
-								int oldIndex = j;
-								String command = "";
-
-								if (!line.equals("")) {
-
-									boolean complete = false;
-									String translation = null;
-									while (!complete) {
-										try {
-											translation = line.trim().substring(0, 3);
-										} catch (StringIndexOutOfBoundsException sie) {
-											showError("No Valid Commands", "No valid command found on line: " + x);
-										}
-										complete = true;
-										if (translation.equals("inp")) {
-											command = command + "01";
-											j++;
-										} else if (translation.equals("out")) {
-											command = command + "02";
-										} else if (translation.equals("lda")) {
-											command = command + "03";
-										} else if (translation.equals("sta")) {
-											command = command + "04";
-											j++;
-										} else if (translation.equals("ldm")) {
-											command = command + "05";
-										} else if (translation.equals("stm")) {
-											command = command + "06";
-											j++;
-										} else if (translation.equals("add")) {
-											command = command + "07";
-										} else if (translation.equals("sub")) {
-											command = command + "08";
-										} else if (translation.equals("mul")) {
-											command = command + "09";
-										} else if (translation.equals("div")) {
-											command = command + "10";
-										} else if (translation.equals("key")) {
-											command = command + "11";
-											j++;
-										} else if (translation.equals("tra")) {
-											command = command + "21";
-										} else if (translation.equals("tre")) {
-											command = command + "22";
-										} else if (translation.equals("tne")) {
-											command = command + "23";
-										} else if (translation.equals("tlt")) {
-											command = command + "24";
-										} else if (translation.equals("tgt")) {
-											command = command + "25";
-										} else if (translation.equals("tle")) {
-											command = command + "26";
-										} else if (translation.equals("tge")) {
-											command = command + "27";
-										} else if (translation.equals("lal")) {
-											command = command + "-21";
-										} else if (translation.equals("lml")) {
-											command = command + "-22";
-										} else if (translation.equals("adl")) {
-											command = command + "-23";
-										} else if (translation.equals("sbl")) {
-											command = command + "-24";
-										} else if (translation.equals("mpl")) {
-											command = command + "-25";
-										} else if (translation.equals("dvl")) {
-											command = command + "-26";
-										} else if (translation.equals("lax")) {
-											command = command + "28";
-										} else if (translation.equals("stx")) {
-											command = command + "29";
-										} else if (translation.equals("inx")) {
-											command = command + "31";
-										} else if (translation.equals("dex")) {
-											command = command + "32";
-										} else if (translation.equals("lay")) {
-											command = command + "-28";
-										} else if (translation.equals("sty")) {
-											command = command + "-29";
-										} else if (translation.equals("iny")) {
-											command = command + "-31";
-										} else if (translation.equals("dey")) {
-											command = command + "-32";
-										} else if (translation.equals("gsb")) {
-											command = command + "-27";
-										} else if (translation.equals("ret")) {
-											command = command + "-30";
-										} else if (translation.equals("def")) {
-											command = command + "30";
-										} else if (translation.equals("end")) {
-											command = command + "00";
-										} else if (translation.equals("rep")) {
-											command = command + "40";
-										} else if (translation.equals("drw")) {
-											command = command + "41";
-										} else if (translation.equals("cxp")) {
-											command = command + "43";
-										} else if (translation.equals("cyp")) {
-											command = command + "44";
-										} else if (translation.equals("red")) {
-											command = command + "45";
-										} else if (translation.equals("grn")) {
-											command = command + "46";
-										} else if (translation.equals("blu")) {
-											command = command + "47";
-										} else {
-
-											complete = false;
-											pointers.put(translation, oldIndex);
-											line = line.substring(3);
-										}
-
-									}
-
-									int ln = line.indexOf('#');
-									if (ln < 0) {
-										ln = line.length();
-									}
-
-									if (translation.equals("inp") || translation.equals("sta")
-											|| translation.equals("stm") || translation.equals("key")) {
-										if (!pointers.containsKey(line.substring(3, ln).trim())) {
-											command = command + String.format("%03d", openSpace);
-											pointers.put(line.substring(3, ln).trim(), openSpace);
-										} else {
-											command = command
-													+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
-										}
-									} else if (translation.equals("lal") || translation.equals("lml")
-											|| translation.equals("adl") || translation.equals("sbl")
-											|| translation.equals("mpl") || translation.equals("dvl")) {
-										command = command
-												+ String.format("%03d", Integer.valueOf(line.substring(3, ln)));
-									} else if (translation.equals("end") || translation.equals("lax")
-											|| translation.equals("stx") || translation.equals("inx")
-											|| translation.equals("dex") || translation.equals("lay")
-											|| translation.equals("sty") || translation.equals("iny")
-											|| translation.equals("dey") || translation.equals("rep")
-											|| translation.equals("drw")) {
-										command = command + "000";
-									} else {
-										if (pointers.get(line.substring(3, ln).trim()) == null) {
-
-											errors.put(line, oldIndex);
-										} else {
-											command = command
-													+ String.format("%03d", pointers.get(line.substring(3, ln).trim()));
-										}
-									}
-
-								}
-
-								commands[oldIndex] = command;
-								j++;
-							}
-
-						}
-
-						fixCode();
-
-						for (int i = 0; i < commands.length; i++) {
-							mdl.setValueAt(commands[i], i, 1);
-						}
-
-						checkForErrors();
-
-					} else {
-						JOptionPane.showMessageDialog(this,
-								"Either switch compile modes in 'Edit' or use proper syntax. You can always check witch syntax to use under 'File' -> 'Help'.",
-								"Compile Error", JOptionPane.WARNING_MESSAGE);
-					}
+					JOptionPane.showMessageDialog(this,
+							"Either switch compile modes in 'Edit' or use proper syntax. You can always check witch syntax to use under 'File' -> 'Help'.",
+							"Compile Error", JOptionPane.WARNING_MESSAGE);
 				}
 			}
+		}
 	}
-	
+
 	public void logError(Exception e) {
 		AssemblyMachine.LogError(e);
-		
+
 	}
 
 	/**

@@ -73,23 +73,30 @@ public class RunThread extends Thread {
 												aw.input.getText() + ", " + ((String) aw.mdl.getValueAt(m, 1)).trim());
 
 									}
+
 									break;
 								case 3:
 									aw.AC.setText(((String) aw.mdl.getValueAt(m, 1)).trim());
 									aw.recentChange = Integer.valueOf(aw.AC.getText());
+									aw.cd.MEMtoAC = true;
+
 									break;
 								case 4:
 
 									aw.mdl.setValueAt(aw.AC.getText(), m, 1);
+									aw.cd.ACtoMEM = true;
 
 									break;
 								case 5:
 									aw.MQ.setText(((String) aw.mdl.getValueAt(m, 1)).trim());
 									aw.recentChange = Integer.valueOf(aw.MQ.getText());
+									aw.cd.MEMtoMQ = true;
+
 									break;
 								case 6:
 
 									aw.mdl.setValueAt(aw.MQ.getText(), m, 1);
+									aw.cd.MQtoMEM = true;
 
 									break;
 								case 7:
@@ -98,18 +105,23 @@ public class RunThread extends Thread {
 											+ Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.AC.setText(String.valueOf(num).trim());
 									aw.recentChange = num;
+									aw.cd.MEMtoAC = true;
 									break;
 								case 8:
 									num = Integer.valueOf(aw.AC.getText())
 											- Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.AC.setText(String.valueOf(num).trim());
 									aw.recentChange = num;
+									aw.cd.MEMtoAC = true;
+
 									break;
 								case 9:
 									num = Integer.valueOf(aw.MQ.getText())
 											* Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.MQ.setText(String.valueOf(num).trim());
 									aw.recentChange = num;
+									aw.cd.MEMtoMQ = true;
+
 									break;
 								case 10:
 									try {
@@ -117,6 +129,8 @@ public class RunThread extends Thread {
 												/ Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 										aw.MQ.setText(String.valueOf(num).trim());
 										aw.recentChange = num;
+										aw.cd.MEMtoMQ = true;
+
 									} catch (NumberFormatException n) {
 
 										aw.showError("Runtime Error", "Number format exception at index: " + m);
@@ -165,10 +179,12 @@ public class RunThread extends Thread {
 								case 28:
 									aw.AC.setText(((String) aw.xReg.getText().trim()));
 									aw.recentChange = Integer.valueOf(aw.xReg.getText());
+									aw.cd.XtoAC = true;
 									break;
 								case 29:
 									aw.xReg.setText(aw.AC.getText());
 									aw.recentChange = Integer.valueOf(aw.AC.getText());
+									aw.cd.ACtoX = true;
 									break;
 								case 31:
 									num = Integer.valueOf(aw.xReg.getText()) + 1;
@@ -258,10 +274,13 @@ public class RunThread extends Thread {
 								case 28:
 									aw.AC.setText(((String) aw.yReg.getText().trim()));
 									aw.recentChange = Integer.valueOf(aw.AC.getText());
+									aw.cd.YtoAC = true;
+
 									break;
 								case 29:
 									aw.yReg.setText(aw.AC.getText());
 									aw.recentChange = Integer.valueOf(aw.yReg.getText());
+									aw.cd.ACtoY = true;
 
 									break;
 								case 31:
@@ -279,6 +298,7 @@ public class RunThread extends Thread {
 							}
 						}
 					}
+					aw.repaint();
 					if (aw.stepCode) {
 						JOptionPane.showMessageDialog(aw, "Completed step in code on line " + curI + ".", "Stepping",
 								JOptionPane.PLAIN_MESSAGE);

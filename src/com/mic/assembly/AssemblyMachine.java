@@ -77,7 +77,6 @@ public class AssemblyMachine {
 	JRadioButtonMenuItem assembler;
 	JRadioButtonMenuItem machine;
 	public boolean sendStats = false;
-	
 
 	/**
 	 * Initializes Menu bar for frame.
@@ -88,9 +87,13 @@ public class AssemblyMachine {
 	 */
 	private JMenuBar createMenu() throws IOException {
 
+		// Menu bar
 		JMenuBar menuBar = new JMenuBar();
+
+		// Menu Item
 		JMenu file = new JMenu("File");
 
+		// Submenus and actions
 		JMenuItem copy = new JMenuItem("Copy to clipboard");
 		JMenuItem newButton = new JMenuItem("New");
 		JMenuItem save = new JMenuItem("Save to disk");
@@ -152,16 +155,16 @@ public class AssemblyMachine {
 
 		});
 
+		// Init help pop-up
 		helpFrame = new JDialog();
 		helpFrame.setAlwaysOnTop(true);
 		helpFrame.setTitle("Help");
-
 		JPanel root = new JPanel();
-
 		JTextPane text = new JTextPane();
 		text.setEditable(false);
 		text.setBackground(Color.white);
 
+		// Reads help file from file instead of hard coding it.
 		InputStream is = AssemblyMachine.class.getResourceAsStream("/misc/help.txt");
 		BufferedReader buf = new BufferedReader(new InputStreamReader(is));
 		String line = buf.readLine();
@@ -173,14 +176,11 @@ public class AssemblyMachine {
 		String fileAsString = sb.toString();
 
 		text.setText(fileAsString);
-
 		JScrollPane sp = new JScrollPane(text);
 		sp.setPreferredSize(new Dimension(600, 400));
 		text.setCaretPosition(0);
 		root.add(sp);
-
 		helpFrame.add(root);
-
 		// Display the window
 		helpFrame.pack();
 		helpFrame.setLocationRelativeTo(null);
@@ -206,8 +206,10 @@ public class AssemblyMachine {
 		file.add(help);
 		file.add(wiki);
 
+		// Menu item
 		JMenu edit = new JMenu("Edit");
 
+		// Submenus and actions
 		JMenuItem cleanUp = new JMenuItem("Refactor");
 		cleanUp.addActionListener(new ActionListener() {
 
@@ -230,21 +232,21 @@ public class AssemblyMachine {
 
 		});
 
+		// TODO fix darkmode
 		darkModeButton = new JCheckBoxMenuItem("Dark Mode");
 		darkModeButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				aw.darkmode = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+				saveUserPrefs();
 				updateLAF(aw.darkmode);
 				aw.code.update();
-				saveUserPrefs();
 			}
 
 		});
 
 		ButtonGroup group = new ButtonGroup();
-
 		machine = new JRadioButtonMenuItem("Machine Language");
 		group.add(machine);
 		machine.setSelected(true);
@@ -332,7 +334,10 @@ public class AssemblyMachine {
 			}
 		});
 
+		// Menu Item
 		JMenu run = new JMenu("Run");
+
+		// Submenus and actions
 		JMenuItem compile = new JMenuItem("Compile");
 		JMenuItem runProg = new JMenuItem("Run");
 		JMenuItem compRun = new JMenuItem("Compile and Run");
@@ -370,14 +375,11 @@ public class AssemblyMachine {
 		run.add(runProg);
 		run.add(compRun);
 
+		// Key bindings
 		newButton.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK));
-
 		copy.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.Event.CTRL_MASK));
-
 		save.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK));
-
 		load.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.Event.CTRL_MASK));
-
 		wiki.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.Event.CTRL_MASK));
 		help.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK));
 		cleanUp.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.Event.CTRL_MASK));
@@ -417,7 +419,7 @@ public class AssemblyMachine {
 		JPanel root = new JPanel(cl);
 		frame.add(root);
 
-		aw = new AssemblyWindow(ui.colors.currentText, MaterialFonts.REGULAR);
+		aw = new AssemblyWindow(MaterialFonts.REGULAR);
 
 		// Add contents to the window.
 		root.add(aw, EDITOR);
@@ -444,6 +446,7 @@ public class AssemblyMachine {
 
 		createAndShowGUI();
 		loadUserPrefs();
+
 	}
 
 	/**
@@ -453,7 +456,7 @@ public class AssemblyMachine {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 		/**
 		 * Custom debug stream.
 		 */
@@ -480,7 +483,7 @@ public class AssemblyMachine {
 				super.println(callSite.replaceAll("com.mic.assembly.", "") + ":" + o);
 			}
 		});
-		
+
 		try {
 			assemblyMachine = new AssemblyMachine();
 		} catch (IOException e) {
@@ -492,6 +495,7 @@ public class AssemblyMachine {
 	private void updateLAF(boolean dark) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
+
 		ui = new MaterialLookAndFeel(dark);
 		try {
 			UIManager.setLookAndFeel(ui);
@@ -499,20 +503,24 @@ public class AssemblyMachine {
 			e2.printStackTrace();
 		}
 
+		
 		if (frame != null) {
 			aw.code.dark = dark;
-			SwingUtilities.updateComponentTreeUI(frame);
-			SwingUtilities.updateComponentTreeUI(helpFrame);
-			SwingUtilities.updateComponentTreeUI(aw.graphicsPane);
-			aw.tln.setCurrentLineForeground(ui.colors.currentText);
-			aw.setBorder(MaterialFonts.REGULAR, ui.colors.currentText);
-			aw.code.updateColor(ui.colors.currentText, ui.colors.currentAccent);
-			aw.memory.getTableHeader().setBackground(ui.colors.currentPrimary);
-			aw.scrollPane.getColumnHeader().setBackground(ui.colors.currentBackground);
-			aw.scrollPane.setBackground(ui.colors.currentBackground);
-			aw.memoryDisplay.setBackground(ui.colors.currentBackground);
 
+		SwingUtilities.updateComponentTreeUI(frame);
+		SwingUtilities.updateComponentTreeUI(helpFrame);
+		SwingUtilities.updateComponentTreeUI(aw.graphicsPane);
+		aw.tln.setCurrentLineForeground(ui.colors.currentText);
+		aw.setBorder(MaterialFonts.REGULAR, ui.colors.currentText);
+		aw.code.updateColor(ui.colors.currentText, ui.colors.currentAccent);
+		aw.memory.getTableHeader().setBackground(ui.colors.currentPrimary);
+		aw.scrollPane.getColumnHeader().setBackground(ui.colors.currentBackground);
+		aw.scrollPane.setBackground(ui.colors.currentBackground);
+		aw.memoryDisplay.setBackground(ui.colors.currentBackground);
 		}
+
+		// frame.pack();
+		// helpFrame.pack();
 	}
 
 	/**
@@ -536,8 +544,7 @@ public class AssemblyMachine {
 		}
 
 	}
-	
-	
+
 	public static void LogError(Exception e) {
 		File dir = new File(getAppData(), "logs");
 		dir.mkdirs();
@@ -547,13 +554,12 @@ public class AssemblyMachine {
 			out.print(e.toString());
 			out.close();
 		} catch (FileNotFoundException e1) {
-			
+
 		}
-		
-		assemblyMachine.aw.showMessage("Error Report", "Find the log at %appdata%/AssemblyLine/logs/ with this time and date. Please upload contents of file to https://github.com/TheMarstonConnell/Assembly-Line/issues.");
-		
-		
-		
+
+		assemblyMachine.aw.showMessage("Error Report",
+				"Find the log at %appdata%/AssemblyLine/logs/ with this time and date. Please upload contents of file to https://github.com/TheMarstonConnell/Assembly-Line/issues.");
+
 	}
 
 	public void loadUserPrefs() {

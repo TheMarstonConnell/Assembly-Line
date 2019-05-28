@@ -224,7 +224,6 @@ public class MaterialTextFieldUI extends BasicTextFieldUI implements FocusListen
 	public void propertyChange(PropertyChangeEvent pce) {
 		super.propertyChange(pce);
 
-//		System.out.println(pce.getPropertyName());
 		if (pce.getPropertyName().equals("selectionColor")) {
 			Color newColor = (Color) pce.getNewValue();
 			if (!newColor.equals(activeBackground) && !newColor.equals(inactiveBackground)) {

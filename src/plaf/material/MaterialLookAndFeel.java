@@ -280,6 +280,7 @@ public class MaterialLookAndFeel extends BasicLookAndFeel {
 		table.put("MenuItem.foreground", colors.currentText);
 		table.put("MenuItem.border", BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
+		table.put("OptionPane.foreground", colors.currentText);
 		table.put("OptionPane.background", colors.currentBackground);
 		table.put("OptionPane.border", MaterialBorders.DEFAULT_SHADOW_BORDER);
 		table.put("OptionPane.font", MaterialFonts.REGULAR);
@@ -363,8 +364,8 @@ public class MaterialLookAndFeel extends BasicLookAndFeel {
 		table.put("TextArea.border", BorderFactory.createEmptyBorder());
 		table.put("TextArea.foreground", colors.currentText);
 
-		table.put("TextField.inactiveForeground", MaterialColors.GRAY_800);
-		table.put("TextField.inactiveBackground", MaterialColors.GRAY_300);
+		table.put("TextField.inactiveForeground", colors.currentText);
+		table.put("TextField.inactiveBackground", colors.currentPrimary);
 		table.put("TextField.selectionBackground", colors.currentPrimary);
 		table.put("TextField.selectionForeground", colors.currentText);
 		table.put("TextField.border", BorderFactory.createEmptyBorder(3, 5, 2, 5));
