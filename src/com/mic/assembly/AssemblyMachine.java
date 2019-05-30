@@ -157,7 +157,7 @@ public class AssemblyMachine {
 
 		// Init help pop-up
 		helpFrame = new JDialog();
-		helpFrame.setAlwaysOnTop(true);
+//		helpFrame.setAlwaysOnTop(true);
 		helpFrame.setTitle("Help");
 		JPanel root = new JPanel();
 		JTextPane text = new JTextPane();

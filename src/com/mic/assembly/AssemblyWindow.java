@@ -8,6 +8,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -20,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -47,6 +50,7 @@ public class AssemblyWindow extends JPanel {
 	JTable memory;
 	private String[] commands;
 	public TextLineNumber tln;
+	Timer refresher;
 
 	// graphics
 	int xPos = 0;
@@ -68,7 +72,8 @@ public class AssemblyWindow extends JPanel {
 	JPanel memp;
 	JScrollPane memoryDisplay;
 	ComputerDiagram cd;
-	
+	ComputerDiagram cd2;
+
 	JTextField input;
 	private JDialog f = null;
 	JTextField AC;
@@ -84,6 +89,8 @@ public class AssemblyWindow extends JPanel {
 	private HashMap<String, Integer> pointers;
 
 	int recentChange = 0;
+
+	private JDialog diagFrame;
 
 	/**
 	 * Checks if string is an available command.
@@ -183,7 +190,7 @@ public class AssemblyWindow extends JPanel {
 			}
 
 		});
-		
+
 		JPanel registers = new JPanel(new GridBagLayout());
 
 		// Add Components to this panel.
@@ -321,7 +328,7 @@ public class AssemblyWindow extends JPanel {
 		j = new JLabel("Output: ");
 		j.setHorizontalAlignment(JLabel.LEFT);
 		registers.add(j, c);
-		
+
 		c.ipadx = 0;
 		c.ipady = 0;
 		c.gridx = 0;
@@ -329,8 +336,41 @@ public class AssemblyWindow extends JPanel {
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 2;
 		c.gridheight = 3;
-		cd = new ComputerDiagram();
-//		cd.setMinimumSize(new Dimension(0, 200));
+		cd = new ComputerDiagram(this);
+		cd.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					openDiagram();
+				}
+			}
+		});
+		// cd.setMinimumSize(new Dimension(0, 200));
 		add(cd, c);
 
 		c.ipady = 0;
@@ -342,7 +382,6 @@ public class AssemblyWindow extends JPanel {
 		c.gridheight = 1;
 		registers.add(input, c);
 
-		
 		c.ipady = 0;
 		c.ipadx = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -351,8 +390,7 @@ public class AssemblyWindow extends JPanel {
 		c.gridwidth = 2;
 		c.gridheight = 3;
 		add(registers, c);
-		
-		
+
 		c.ipady = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -409,6 +447,22 @@ public class AssemblyWindow extends JPanel {
 		pa.setBorder(BorderFactory.createTitledBorder("Graphics"));
 		pa.add(graphicsPane);
 
+		diagFrame = new JDialog();
+//		diagFrame.setAlwaysOnTop(true);
+		diagFrame.setTitle("Diagram");
+
+		
+		cd.createToolTip();
+		cd.setToolTipText("Double click to enlarge the diagram.");
+		
+		cd2 = new ComputerDiagram(this);
+		diagFrame.add(cd2);
+//		diagFrame.pack();
+		diagFrame.setResizable(false);
+		diagFrame.setSize(280, 400);
+		diagFrame.setLocationRelativeTo(null);
+		diagFrame.setVisible(false);
+
 		f.add(pa);
 		f.pack();
 		f.setResizable(true);
@@ -416,6 +470,20 @@ public class AssemblyWindow extends JPanel {
 		f.setVisible(false);
 		f.addKeyListener(new MKeyListener(this));
 
+		refresher = new Timer(1000, new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cd.repaint();
+				refresher.stop();
+			}
+		});
+
+	}
+
+	public void openDiagram() {
+		
+		diagFrame.setVisible(true);
 	}
 
 	public void setBorder(Font f, Color c) {
@@ -625,23 +693,26 @@ public class AssemblyWindow extends JPanel {
 				int j = 0;
 				for (String line : lines) {
 					if (!(j >= 999)) {
-						if (line.charAt(0) == '#') {
 
-							line = " ";
+						if (line.trim().length() > 0) {
+							if (line.charAt(0) == '#') {
 
-						}
+								line = " ";
 
-						int ln = line.indexOf('#');
-						if (ln < 0) {
-							ln = line.length();
-						}
-						boolean neg = false;
-						if (line.trim().charAt(0) == '-') {
-							neg = true;
-						}
-						commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
-						if (neg) {
-							line = "-" + line;
+							}
+
+							int ln = line.indexOf('#');
+							if (ln < 0) {
+								ln = line.length();
+							}
+							boolean neg = false;
+							if (line.trim().charAt(0) == '-') {
+								neg = true;
+							}
+							commands[j] = line.substring(0, ln).replaceAll("[^\\d-]", "");
+							if (neg) {
+								line = "-" + line;
+							}
 						}
 					}
 					j++;
@@ -974,6 +1045,17 @@ public class AssemblyWindow extends JPanel {
 	}
 
 	/**
+	 * Displays diagram window without double screens.
+	 * 
+	 * @author Marston Connell
+	 */
+	public void dnlargeDiagram() {
+		if (!diagFrame.isActive()) {
+			diagFrame.setVisible(true);
+		}
+	}
+
+	/**
 	 * Starts code running thread.
 	 * 
 	 * @author Marston Connell
@@ -989,6 +1071,12 @@ public class AssemblyWindow extends JPanel {
 		green = 255;
 		rt = new RunThread(this);
 		rt.start();
+
+	}
+
+	public void clearWindow() {
+		System.out.println("Refreshing diagram");
+		refresher.start();
 
 	}
 
