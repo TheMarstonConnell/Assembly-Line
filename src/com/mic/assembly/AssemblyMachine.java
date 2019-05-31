@@ -43,6 +43,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.mic.assembly.arduino.ArduinoHandler;
+
 import plaf.material.MaterialLookAndFeel;
 import plaf.material.utils.MaterialFonts;
 
@@ -68,6 +71,7 @@ public class AssemblyMachine {
 	JRadioButtonMenuItem assembler;
 	JRadioButtonMenuItem machine;
 	public boolean sendStats = false;
+	ArduinoHandler arduino;
 
 	/**
 	 * Initializes Menu bar for frame.
@@ -409,7 +413,7 @@ public class AssemblyMachine {
 		JPanel root = new JPanel(cl);
 		frame.add(root);
 
-		aw = new AssemblyWindow(MaterialFonts.REGULAR);
+		aw = new AssemblyWindow(MaterialFonts.REGULAR, this);
 
 		// Add contents to the window.
 		root.add(aw, EDITOR);
@@ -436,6 +440,8 @@ public class AssemblyMachine {
 	 * @throws IOException
 	 */
 	public AssemblyMachine() throws IOException {
+		arduino = new ArduinoHandler();
+
 		updateLAF(false);
 
 		createAndShowGUI();
@@ -449,8 +455,9 @@ public class AssemblyMachine {
 	 * @author Marston Connell
 	 * @param args
 	 */
-	public static void main(String[] args) {
-
+	public static void main(String[] args) {		
+		
+		
 		/**
 		 * Custom debug stream.
 		 */
@@ -559,7 +566,7 @@ public class AssemblyMachine {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		Date date = new Date();
 		try (PrintWriter out = new PrintWriter(new File(dir, dateFormat.format(date) + ".log"))) {
-			out.print(e.toString());
+			out.print("Uh oh looks like we had a problem..." + System.lineSeparator() + e.getStackTrace());
 			out.close();
 		} catch (FileNotFoundException e1) {
 

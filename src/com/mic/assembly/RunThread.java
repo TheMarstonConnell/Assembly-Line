@@ -24,6 +24,7 @@ public class RunThread extends Thread {
 	 */
 	public RunThread(AssemblyWindow aw) {
 		this.aw = aw;
+
 	}
 
 	/**
@@ -59,6 +60,7 @@ public class RunThread extends Thread {
 							int num;
 
 							if (((String) aw.mdl.getValueAt(i, 1)).trim().charAt(0) != '-') {
+								
 								switch (Integer.valueOf(((String) aw.mdl.getValueAt(i, 1)).substring(0, 2))) {
 								case 0:
 									return;
@@ -284,6 +286,16 @@ public class RunThread extends Thread {
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
 
+									break;
+								case 51:
+									aw.am.arduino.setHigh(m);
+									
+									break;
+								case 52:
+									aw.am.arduino.setLow(m);									
+									break;
+								case 53:
+									System.out.println(aw.am.arduino.read(m));
 									break;
 								default:
 									JOptionPane.showMessageDialog(aw,

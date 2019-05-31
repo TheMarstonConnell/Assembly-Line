@@ -92,6 +92,8 @@ public class AssemblyWindow extends JPanel {
 
 	private JDialog diagFrame;
 
+	AssemblyMachine am;
+
 	/**
 	 * Checks if string is an available command.
 	 * 
@@ -114,8 +116,9 @@ public class AssemblyWindow extends JPanel {
 	 * 
 	 * @author Marston Connell
 	 */
-	public AssemblyWindow(Font font) {
+	public AssemblyWindow(Font font, AssemblyMachine am) {
 		super(new GridBagLayout());
+		this.am = am;
 
 		commands = new String[1000];
 		pointers = new HashMap<String, Integer>();
