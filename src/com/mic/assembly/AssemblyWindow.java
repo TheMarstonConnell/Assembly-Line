@@ -481,11 +481,21 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	/**
+	 * @author Marston Connell
+	 * Opens diagram to be its own separated window and bigger.
+	 */
 	public void openDiagram() {
 		
 		diagFrame.setVisible(true);
 	}
 
+	/**
+	 * Adds borders with titles to components
+	 * @author Marston Connell
+	 * @param f
+	 * @param c
+	 */
 	public void setBorder(Font f, Color c) {
 		TitledBorder b = BorderFactory.createTitledBorder("Memory Locations and Registries");
 		b.setTitleColor(c);
@@ -493,7 +503,7 @@ public class AssemblyWindow extends JPanel {
 
 		memp.setBorder(b);
 
-		b = BorderFactory.createTitledBorder("Memory Locations and Registries");
+		b = BorderFactory.createTitledBorder("Code");
 		b.setTitleColor(c);
 		b.setTitleFont(f);
 		b.setTitle("Code");
@@ -647,6 +657,11 @@ public class AssemblyWindow extends JPanel {
 
 	}
 
+	/**
+	 * Marks every error returned in the code and reports to user.
+	 * @author Marston Connell
+	 * @return
+	 */
 	public boolean checkForErrors() {
 		for (int i = 0; i < 1000; i++) {
 
@@ -915,6 +930,11 @@ public class AssemblyWindow extends JPanel {
 		}
 	}
 
+	/**
+	 * Wrapper to log errors.
+	 * @author Marston Connell
+	 * @param e
+	 */
 	public void logError(Exception e) {
 		AssemblyMachine.LogError(e);
 

@@ -1,11 +1,9 @@
 package com.mic.assembly;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
 import javax.swing.JComponent;
-import javax.swing.JTextPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.plaf.ComponentUI;
@@ -14,7 +12,6 @@ import javax.swing.text.BadLocationException;
 
 import com.mic.lib.IDETextPane;
 
-import plaf.material.objects.MaterialTextPaneUI;
 import plaf.material.utils.MaterialColors;
 import plaf.material.utils.MaterialDrawingUtils;
 

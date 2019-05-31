@@ -20,8 +20,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,14 +42,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.basic.BasicLookAndFeel;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.multi.MultiLookAndFeel;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.plaf.synth.SynthLookAndFeel;
-
 import plaf.material.MaterialLookAndFeel;
 import plaf.material.utils.MaterialFonts;
 
@@ -157,7 +148,6 @@ public class AssemblyMachine {
 
 		// Init help pop-up
 		helpFrame = new JDialog();
-//		helpFrame.setAlwaysOnTop(true);
 		helpFrame.setTitle("Help");
 		JPanel root = new JPanel();
 		JTextPane text = new JTextPane();
@@ -441,6 +431,10 @@ public class AssemblyMachine {
 
 	}
 
+	/**
+	 * Initializes the emulator/editor.
+	 * @throws IOException
+	 */
 	public AssemblyMachine() throws IOException {
 		updateLAF(false);
 
@@ -492,6 +486,11 @@ public class AssemblyMachine {
 
 	}
 
+	/**
+	 * Updates entire programs look and feel depending on dark parameter.
+	 * @author Marston Connell
+	 * @param dark
+	 */
 	private void updateLAF(boolean dark) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
@@ -534,6 +533,10 @@ public class AssemblyMachine {
 		clipboard.setContents(stringSelection, null);
 	}
 
+	/**
+	 * Exports users preferences from the edit tab to a file.
+	 * @author Marston Connell
+	 */
 	public void saveUserPrefs() {
 		File dir = getAppData();
 		dir.mkdirs();
@@ -545,6 +548,11 @@ public class AssemblyMachine {
 
 	}
 
+	/**
+	 * Saves java error log to appdata folder.
+	 * @author Marston Connell
+	 * @param e
+	 */
 	public static void LogError(Exception e) {
 		File dir = new File(getAppData(), "logs");
 		dir.mkdirs();
@@ -562,6 +570,10 @@ public class AssemblyMachine {
 
 	}
 
+	/**
+	 * Reads in user preferences and loads the options on startup.
+	 * @author Marston Connell
+	 */
 	public void loadUserPrefs() {
 		File dir = getAppData();
 		boolean useNums = true;
@@ -636,6 +648,10 @@ public class AssemblyMachine {
 		}
 	}
 
+	/**
+	 * Creates folders and asks user some questions on first time running.
+	 * @author Marston Connell
+	 */
 	private void runFirstTimeSetUp() {
 
 		Object[] options = { "Send data", "Don't Send" };
@@ -660,6 +676,11 @@ public class AssemblyMachine {
 
 	}
 
+	/**
+	 * Gets computers appdata folder to store data from program.
+	 * @author Marston Connell
+	 * @return File appdata location
+	 */
 	private static File getAppData() {
 		File dir = new File(System.getenv("APPDATA"));
 		return new File(dir, "AssemblyLine");

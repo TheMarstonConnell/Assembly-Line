@@ -26,6 +26,10 @@ public class RunThread extends Thread {
 		this.aw = aw;
 	}
 
+	/**
+	 * Handles all runtime calculations and I/O.
+	 * @author Marston Connell
+	 */
 	@Override
 	public void run() {
 		super.run();
@@ -60,7 +64,7 @@ public class RunThread extends Thread {
 									return;
 								case 1:
 									String response = null;
-									while (response == null) {
+									while (response == null || response.trim().equals("")) {
 										response = JOptionPane.showInputDialog("Enter Input");
 									}
 									aw.mdl.setValueAt(response, m, 1);
