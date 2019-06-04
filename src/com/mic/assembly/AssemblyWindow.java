@@ -42,7 +42,7 @@ public class AssemblyWindow extends JPanel {
 	private final String[] possibleCommands = { "inp", "out", "lda", "sta", "ldm", "stm", "add", "sub", "mul", "div",
 			"key", "end", "tra", "tre", "tne", "tlt", "tgt", "tle", "tge", "lal", "lml", "adl", "sbl", "mpl", "dvl",
 			"lax", "stx", "inx", "dex", "lay", "sty", "iny", "dey", "gsb", "ret", "def", "rep", "drw", "cxp", "cyp",
-			"red", "grn", "blu" };
+			"red", "grn", "blu", "wat", "drd", "dwh", "dwl" };
 
 	protected IDETextPane code;
 	private JButton runButton;
@@ -451,16 +451,15 @@ public class AssemblyWindow extends JPanel {
 		pa.add(graphicsPane);
 
 		diagFrame = new JDialog();
-//		diagFrame.setAlwaysOnTop(true);
+		// diagFrame.setAlwaysOnTop(true);
 		diagFrame.setTitle("Diagram");
 
-		
 		cd.createToolTip();
 		cd.setToolTipText("Double click to enlarge the diagram.");
-		
+
 		cd2 = new ComputerDiagram(this);
 		diagFrame.add(cd2);
-//		diagFrame.pack();
+		// diagFrame.pack();
 		diagFrame.setResizable(false);
 		diagFrame.setSize(280, 400);
 		diagFrame.setLocationRelativeTo(null);
@@ -485,16 +484,17 @@ public class AssemblyWindow extends JPanel {
 	}
 
 	/**
-	 * @author Marston Connell
-	 * Opens diagram to be its own separated window and bigger.
+	 * @author Marston Connell Opens diagram to be its own separated window and
+	 *         bigger.
 	 */
 	public void openDiagram() {
-		
+
 		diagFrame.setVisible(true);
 	}
 
 	/**
 	 * Adds borders with titles to components
+	 * 
 	 * @author Marston Connell
 	 * @param f
 	 * @param c
@@ -662,6 +662,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Marks every error returned in the code and reports to user.
+	 * 
 	 * @author Marston Connell
 	 * @return
 	 */
@@ -864,6 +865,14 @@ public class AssemblyWindow extends JPanel {
 										command = command + "46";
 									} else if (translation.equals("blu")) {
 										command = command + "47";
+									} else if (translation.equals("drd")) {
+										command = command + "53";
+									} else if (translation.equals("dwh")) {
+										command = command + "51";
+									} else if (translation.equals("dwl")) {
+										command = command + "52";
+									} else if (translation.equals("wat")) {
+										command = command + "60";
 									} else {
 
 										complete = false;
@@ -889,7 +898,9 @@ public class AssemblyWindow extends JPanel {
 									}
 								} else if (translation.equals("lal") || translation.equals("lml")
 										|| translation.equals("adl") || translation.equals("sbl")
-										|| translation.equals("mpl") || translation.equals("dvl")) {
+										|| translation.equals("mpl") || translation.equals("dvl")
+										|| translation.equals("wat") || translation.equals("dwh")
+										|| translation.equals("dwl") || translation.equals("drd")) {
 									command = command + String.format("%03d", Integer.valueOf(line.substring(3, ln)));
 								} else if (translation.equals("end") || translation.equals("lax")
 										|| translation.equals("stx") || translation.equals("inx")
@@ -935,6 +946,7 @@ public class AssemblyWindow extends JPanel {
 
 	/**
 	 * Wrapper to log errors.
+	 * 
 	 * @author Marston Connell
 	 * @param e
 	 */

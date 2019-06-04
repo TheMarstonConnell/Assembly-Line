@@ -14,6 +14,7 @@ McnCode	AsmCode	Example	Description
 09	mul	09123	MQ multiplied by co(adr 123)
 10	div	10035	MQ divided by co(adr 35)
 11	key	11023	gets current key code and sends it to co(adr 23)
+60	wat	60500	waits in program for 500 milliseconds
 00	end	00000	programs stops executing
 
 Transfer codes
@@ -51,6 +52,11 @@ Graphics
 45	red	45123	sets red value to 123
 46	grn	46312	sets green value to 312
 47	blu	47213	sets blue value to 213
+
+Arduino
+51	dwh	51013	sets pin 13 to High
+52	dwl	52013	sets pin 13 to Low
+53	drd	53004	reads the value of pin 4 and loads it into the ac
 
 Condition Codes (CC)
 -Set by most recent change to any of AC, MQ, X, Y registers.

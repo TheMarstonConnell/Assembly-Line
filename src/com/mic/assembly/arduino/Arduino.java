@@ -18,6 +18,8 @@ public class Arduino {
 		//empty constructor if port undecided
 	}
 	
+	
+	
 	public Arduino(String portDescription) {
 		//make sure to set baud rate after
 		this.portDescription = portDescription;
@@ -37,11 +39,24 @@ public class Arduino {
 	public boolean openConnection(){
 		if(comPort.openPort()){
 			try {Thread.sleep(100);} catch(Exception e){}
+			int timeout = 0;
+			while (!(getSerialPort().bytesAvailable() > 0)) {
+				timeout++;
+				if(timeout > 2000) {
+					return false;
+				}
+//				System.out.println("Waiting...");
+			}
+//			System.out.println(serialRead());
+			try {Thread.sleep(100);} catch(Exception e){}
+			String response = serialRead();
+//			System.out.println("Connection: " + response);
+			
 			return true;
 		}
 		else {
-			AlertBox alert = new AlertBox(new Dimension(400,100),"Error Connecting", "Try Another port");
-			alert.display();
+//			AlertBox alert = new AlertBox(new Dimension(400,100),"Error Connecting", "Try Another port");
+//			alert.display();
 			return false;
 		}
 	}
@@ -69,17 +84,33 @@ public class Arduino {
 	}
 	
 	
+	public boolean readBoolean() {
+		String response = serialRead();
+		char res = response.charAt(response.length() - 1);
+		if(res == '0') {
+			return false;
+		}else if(res == '1') {
+			return true;
+		}
+		return false;
+	}
+	
 	public String serialRead(){
 		//will be an infinite loop if incoming data is not bound
-		comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+		comPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
 		String out="";
 		Scanner in = new Scanner(comPort.getInputStream());
 		try
 		{
 		   while(in.hasNext())
-		      out += (in.next()+"\n");
+		      out += (in.next());
 		   	in.close();
 		} catch (Exception e) { e.printStackTrace(); }
+		
+		System.out.println(out);
+		while(comPort.bytesAvailable() > 0) {
+			comPort.readBytes(new byte[1], 1);
+		}
 		return out;
 	}
 	
@@ -140,5 +171,9 @@ public class Arduino {
 		PrintWriter pout = new PrintWriter(comPort.getOutputStream());pout.write(c);
 		pout.flush();
 		try{Thread.sleep(delay);}catch(Exception e){}
+	}
+
+	public SerialPort[] getPorts() {
+		return SerialPort.getCommPorts();
 	}
 }

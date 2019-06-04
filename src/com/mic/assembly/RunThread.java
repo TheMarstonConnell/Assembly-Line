@@ -289,13 +289,30 @@ public class RunThread extends Thread {
 									break;
 								case 51:
 									aw.am.arduino.setHigh(m);
+									aw.cd.DisplayUpdate = true;
+									aw.cd2.DisplayUpdate = true;
 									
 									break;
 								case 52:
-									aw.am.arduino.setLow(m);									
+									aw.am.arduino.setLow(m);
+									aw.cd.DisplayUpdate = true;
+									aw.cd2.DisplayUpdate = true;
 									break;
 								case 53:
-									System.out.println(aw.am.arduino.read(m));
+									if(aw.am.arduino.read(m)) {
+										aw.AC.setText("1");
+									}else {
+										aw.AC.setText("0");
+
+									}
+									aw.cd.DisplayUpdate = true;
+									aw.cd2.DisplayUpdate = true;
+									aw.cd2.ACupdate = true;
+									aw.cd.ACupdate = true;
+//									System.out.println();
+									break;
+								case 60:
+									Thread.sleep(m);
 									break;
 								default:
 									JOptionPane.showMessageDialog(aw,
