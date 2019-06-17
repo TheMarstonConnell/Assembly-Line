@@ -13,10 +13,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,7 +58,8 @@ import plaf.material.utils.MaterialFonts;
  *
  */
 public class AssemblyMachine {
-
+	public LoadScreen loadBar;
+	
 	public static AssemblyMachine assemblyMachine;
 
 	public JFrame frame;
@@ -382,7 +385,7 @@ public class AssemblyMachine {
 		runProg.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.Event.CTRL_MASK));
 		compRun.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.Event.CTRL_MASK));
 
-		edit.add(darkModeButton);
+//		edit.add(darkModeButton);
 		edit.add(langType);
 		edit.add(codeStep);
 		edit.addSeparator();
@@ -432,6 +435,8 @@ public class AssemblyMachine {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		loadBar.increase();
+
 
 	}
 
@@ -440,13 +445,15 @@ public class AssemblyMachine {
 	 * @throws IOException
 	 */
 	public AssemblyMachine() throws IOException {
-		arduino = new ArduinoHandler();
+		loadBar = new LoadScreen();
+		
+		arduino = new ArduinoHandler(this);
 
 		updateLAF(false);
 
 		createAndShowGUI();
 		loadUserPrefs();
-
+		loadBar.dispose();
 	}
 
 	/**
@@ -527,6 +534,8 @@ public class AssemblyMachine {
 
 		// frame.pack();
 		// helpFrame.pack();
+		
+		loadBar.increase();
 	}
 
 	/**
@@ -565,8 +574,11 @@ public class AssemblyMachine {
 		dir.mkdirs();
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		Date date = new Date();
+		
+		
 		try (PrintWriter out = new PrintWriter(new File(dir, dateFormat.format(date) + ".log"))) {
-			out.print("Uh oh looks like we had a problem..." + System.lineSeparator() + e.getStackTrace());
+			out.print("Uh oh looks like we had a problem..." + System.lineSeparator());
+			e.printStackTrace(out);
 			out.close();
 		} catch (FileNotFoundException e1) {
 
@@ -616,6 +628,8 @@ public class AssemblyMachine {
 		} else {
 			runFirstTimeSetUp();
 		}
+		loadBar.increase();
+
 
 		readingFile = new File(dir, "tos.dat");
 		try {
@@ -627,6 +641,8 @@ public class AssemblyMachine {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		loadBar.increase();
+
 
 		aw.darkmode = darkMode;
 		darkModeButton.setSelected(darkMode);
@@ -653,6 +669,8 @@ public class AssemblyMachine {
 			machine.setSelected(false);
 			assembler.setSelected(true);
 		}
+		loadBar.increase();
+
 	}
 
 	/**

@@ -1,11 +1,14 @@
 package com.mic.assembly.arduino;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.mic.assembly.AssemblyMachine;
 
 public class ArduinoHandler {
 	Arduino uno;
+	AssemblyMachine as;
 
-	public ArduinoHandler() {
+	public ArduinoHandler(AssemblyMachine as) {
+		this.as = as;
 		uno = new Arduino();
 		
 		SerialPort[] portNames = uno.getPorts();
@@ -18,15 +21,11 @@ public class ArduinoHandler {
 			if(uno.openConnection()) {
 				System.out.println("Found Open Port");
 				uno.serialRead();
+				as.loadBar.increase();
 				break;
 			}
 		}
-		
-//		uno.setPortDescription("COM3");
-//		uno.setBaudRate(9600);
-//		if(uno.openConnection()) {
-//			System.out.println("Found Open Port");
-//		}
+		as.loadBar.increase();
 
 	}
 

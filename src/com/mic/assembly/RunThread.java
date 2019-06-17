@@ -74,6 +74,8 @@ public class RunThread extends Thread {
 									aw.cd.InputUpdate = true;
 									aw.cd2.MEMupdate = true;
 									aw.cd2.InputUpdate = true;
+									aw.cd.setCurrentAction("Taking input");
+									aw.cd2.setCurrentAction("Taking input");
 
 									break;
 								case 2:
@@ -86,6 +88,9 @@ public class RunThread extends Thread {
 									}
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Writing output");
+									aw.cd2.setCurrentAction("Writing output");
+
 
 									break;
 								case 3:
@@ -95,6 +100,9 @@ public class RunThread extends Thread {
 									aw.cd.ACupdate = true;
 									aw.cd2.MEMtoAC = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Loading AC");
+									aw.cd2.setCurrentAction("Loading AC");
+
 									break;
 								case 4:
 
@@ -103,6 +111,9 @@ public class RunThread extends Thread {
 									aw.cd.MEMupdate = true;
 									aw.cd2.ACtoMEM = true;
 									aw.cd2.MEMupdate = true;
+									aw.cd.setCurrentAction("Saving AC");
+									aw.cd2.setCurrentAction("Saving AC");
+
 									break;
 								case 5:
 									aw.MQ.setText(((String) aw.mdl.getValueAt(m, 1)).trim());
@@ -111,6 +122,9 @@ public class RunThread extends Thread {
 									aw.cd.MQupdate = true;
 									aw.cd2.MEMtoMQ = true;
 									aw.cd2.MQupdate = true;
+									aw.cd.setCurrentAction("Loading MQ");
+									aw.cd2.setCurrentAction("Loading MQ");
+
 									break;
 								case 6:
 
@@ -119,6 +133,9 @@ public class RunThread extends Thread {
 									aw.cd.MEMupdate = true;
 									aw.cd2.MQtoMEM = true;
 									aw.cd2.MEMupdate = true;
+									aw.cd.setCurrentAction("Saving MQ");
+									aw.cd2.setCurrentAction("Saving MQ");
+
 									break;
 								case 7:
 
@@ -130,6 +147,9 @@ public class RunThread extends Thread {
 									aw.cd.ACupdate = true;
 									aw.cd2.MEMtoAC = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Adding to AC");
+									aw.cd2.setCurrentAction("Adding to AC");
+
 									break;
 								case 8:
 									num = Integer.valueOf(aw.AC.getText())
@@ -140,6 +160,9 @@ public class RunThread extends Thread {
 									aw.cd.ACupdate = true;
 									aw.cd2.MEMtoAC = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Subtracting from AC");
+									aw.cd2.setCurrentAction("Subtracting from AC");
+
 									break;
 								case 9:
 									num = Integer.valueOf(aw.MQ.getText())
@@ -150,6 +173,9 @@ public class RunThread extends Thread {
 									aw.cd.MQupdate = true;
 									aw.cd2.MEMtoMQ = true;
 									aw.cd2.MQupdate = true;
+									aw.cd.setCurrentAction("Multiplying MQ");
+									aw.cd2.setCurrentAction("Multiplying MQ");
+
 									break;
 								case 10:
 									try {
@@ -161,6 +187,9 @@ public class RunThread extends Thread {
 										aw.cd.MQupdate = true;
 										aw.cd2.MEMtoMQ = true;
 										aw.cd2.MQupdate = true;
+										aw.cd.setCurrentAction("Dividing MQ");
+										aw.cd2.setCurrentAction("Dividing MQ");
+
 									} catch (NumberFormatException n) {
 
 										aw.showError("Runtime Error", "Number format exception at index: " + m);
@@ -175,39 +204,63 @@ public class RunThread extends Thread {
 									aw.cd2.MEMupdate = true;
 									aw.cd.InputUpdate = true;
 									aw.cd2.InputUpdate = true;
+									aw.cd.setCurrentAction("Grabbing held key");
+									aw.cd2.setCurrentAction("Grabbing held key");
+
 									break;
 								case 21:
 									i = m - 1;
+									aw.cd.setCurrentAction("Transfering");
+									aw.cd2.setCurrentAction("Transfering");
+
 									break;
 								case 22:
 									if (aw.recentChange == 0) {
 										i = m - 1;
 									}
+									aw.cd.setCurrentAction("Transfering if c=0");
+									aw.cd2.setCurrentAction("Transfering if c=0");
+
 									break;
 								case 23:
 									if (aw.recentChange != 0) {
 										i = m - 1;
 									}
+									aw.cd.setCurrentAction("Transfering if c<>0");
+									aw.cd2.setCurrentAction("Transfering if c<>0");
+
 									break;
 								case 24:
 									if (aw.recentChange < 0) {
 										i = m - 1;
 									}
+									aw.cd.setCurrentAction("Transfering if c<0");
+									aw.cd2.setCurrentAction("Transfering if c<0");
+
 									break;
 								case 25:
 									if (aw.recentChange > 0) {
 										i = m - 1;
 									}
+									aw.cd.setCurrentAction("Transfering if c>0");
+									aw.cd2.setCurrentAction("Transfering if c>0");
+
 									break;
 								case 26:
 									if (aw.recentChange <= 0) {
 										i = m - 1;
 									}
+									aw.cd.setCurrentAction("Transfering if c<=0");
+									aw.cd2.setCurrentAction("Transfering if c<=0");
+
 									break;
 								case 27:
 									if (aw.recentChange >= 0) {
 										i = m - 1;
 									}
+									aw.cd.setCurrentAction("Transfering if c>=0");
+									aw.cd2.setCurrentAction("Transfering if c>=0");
+
 									break;
 
 								case 28:
@@ -217,6 +270,9 @@ public class RunThread extends Thread {
 									aw.cd.ACupdate = true;
 									aw.cd2.XtoAC = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Loading AC with X");
+									aw.cd2.setCurrentAction("Loading AC with X");
+
 									break;
 								case 29:
 									aw.xReg.setText(aw.AC.getText());
@@ -224,6 +280,8 @@ public class RunThread extends Thread {
 									aw.cd.ACtoX = true;
 									aw.cd.Xupdate = true;
 									aw.cd2.Xupdate = true;
+									aw.cd.setCurrentAction("Loading X with AC");
+									aw.cd2.setCurrentAction("Loading X with AC");
 
 									break;
 								case 31:
@@ -232,6 +290,8 @@ public class RunThread extends Thread {
 									aw.recentChange = num;
 									aw.cd.Xupdate = true;
 									aw.cd2.Xupdate = true;
+									aw.cd.setCurrentAction("Increasing X");
+									aw.cd2.setCurrentAction("Increasing X");
 
 									break;
 								case 32:
@@ -240,12 +300,16 @@ public class RunThread extends Thread {
 									aw.recentChange = num;
 									aw.cd.Xupdate = true;
 									aw.cd2.Xupdate = true;
+									aw.cd.setCurrentAction("Decreasing X");
+									aw.cd2.setCurrentAction("Decreasing X");
 
 									break;
 								case 40:
 									aw.graphicsPane.repaint();
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Repainting display");
+									aw.cd2.setCurrentAction("Repainting display");
 
 									break;
 								case 41:
@@ -254,6 +318,8 @@ public class RunThread extends Thread {
 									g.fillRect(aw.xPos, aw.yPos, 1, 1);
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Drawing pixel");
+									aw.cd2.setCurrentAction("Drawing pixel");
 
 									g.dispose();
 									break;
@@ -261,42 +327,57 @@ public class RunThread extends Thread {
 									aw.xPos = Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Setting X position");
+									aw.cd2.setCurrentAction("Setting X position");
 
 									break;
 								case 44:
 									aw.yPos = Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Setting Y position");
+									aw.cd2.setCurrentAction("Setting Y position");
 
 									break;
 								case 45:
 									aw.red = Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Setting red value");
+									aw.cd2.setCurrentAction("Setting red value");
 
 									break;
 								case 46:
 									aw.blue = Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Setting green value");
+									aw.cd2.setCurrentAction("Setting green value");
 
 									break;
 								case 47:
 									aw.green = Integer.valueOf((String) aw.mdl.getValueAt(m, 1));
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Setting blue value");
+									aw.cd2.setCurrentAction("Setting blue value");
 
 									break;
 								case 51:
 									aw.am.arduino.setHigh(m);
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
-									
+									aw.cd.setCurrentAction("Setting pin to high");
+									aw.cd2.setCurrentAction("Setting pin to high");
+
 									break;
 								case 52:
 									aw.am.arduino.setLow(m);
 									aw.cd.DisplayUpdate = true;
 									aw.cd2.DisplayUpdate = true;
+									aw.cd.setCurrentAction("Setting pin to low");
+									aw.cd2.setCurrentAction("Setting pin to low");
+
 									break;
 								case 53:
 									if(aw.am.arduino.read(m)) {
@@ -309,10 +390,16 @@ public class RunThread extends Thread {
 									aw.cd2.DisplayUpdate = true;
 									aw.cd2.ACupdate = true;
 									aw.cd.ACupdate = true;
+									aw.cd.setCurrentAction("Reading pin");
+									aw.cd2.setCurrentAction("Reading pin");
+
 //									System.out.println();
 									break;
 								case 60:
 									Thread.sleep(m);
+									aw.cd.setCurrentAction("Waiting...");
+									aw.cd2.setCurrentAction("Waiting...");
+
 									break;
 								default:
 									JOptionPane.showMessageDialog(aw,
@@ -330,6 +417,8 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.AC.getText());
 									aw.cd.ACupdate = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Literal into AC");
+									aw.cd2.setCurrentAction("Literal into AC");
 
 									break;
 								case 22:
@@ -337,6 +426,8 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.MQ.getText());
 									aw.cd.MQupdate = true;
 									aw.cd2.MQupdate = true;
+									aw.cd.setCurrentAction("Literal into MQ");
+									aw.cd2.setCurrentAction("Literal into MQ");
 
 									break;
 								case 23:
@@ -347,6 +438,9 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.AC.getText());
 									aw.cd.ACupdate = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Literal added to AC");
+									aw.cd2.setCurrentAction("Literal added to AC");
+
 
 									break;
 								case 24:
@@ -356,6 +450,8 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.AC.getText());
 									aw.cd.ACupdate = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Literal subtracted from AC");
+									aw.cd2.setCurrentAction("Literal subtracted from AC");
 
 									break;
 								case 25:
@@ -365,6 +461,9 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.MQ.getText());
 									aw.cd.MQupdate = true;
 									aw.cd2.MQupdate = true;
+									aw.cd.setCurrentAction("Literal multiplied to MQ");
+									aw.cd2.setCurrentAction("Literal multiplied to MQ");
+
 
 									break;
 								case 26:
@@ -375,6 +474,8 @@ public class RunThread extends Thread {
 										aw.recentChange = Integer.valueOf(aw.MQ.getText());
 										aw.cd.MQupdate = true;
 										aw.cd2.MQupdate = true;
+										aw.cd.setCurrentAction("MQ divided by literal");
+										aw.cd2.setCurrentAction("MQ divided by literal");
 
 									} catch (NumberFormatException n) {
 										aw.showError("Runtime Error", "Number format exception at index: " + m);
@@ -389,6 +490,9 @@ public class RunThread extends Thread {
 									aw.cd.ACupdate = true;
 									aw.cd2.YtoAC = true;
 									aw.cd2.ACupdate = true;
+									aw.cd.setCurrentAction("Y into AC");
+									aw.cd2.setCurrentAction("Y into AC");
+
 									break;
 								case 29:
 									aw.yReg.setText(aw.AC.getText());
@@ -397,6 +501,8 @@ public class RunThread extends Thread {
 									aw.cd2.ACtoY = true;
 									aw.cd.Yupdate = true;
 									aw.cd2.Yupdate = true;
+									aw.cd.setCurrentAction("AC into Y");
+									aw.cd2.setCurrentAction("AC into Y");
 
 									break;
 								case 31:
@@ -405,6 +511,8 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.yReg.getText());
 									aw.cd.Yupdate = true;
 									aw.cd2.Yupdate = true;
+									aw.cd.setCurrentAction("Increasing Y");
+									aw.cd2.setCurrentAction("Increasing Y");
 
 									break;
 								case 32:
@@ -413,6 +521,8 @@ public class RunThread extends Thread {
 									aw.recentChange = Integer.valueOf(aw.yReg.getText());
 									aw.cd.Yupdate = true;
 									aw.cd2.Yupdate = true;
+									aw.cd.setCurrentAction("Decreasing Y");
+									aw.cd2.setCurrentAction("Decreasing Y");
 
 									break;
 								}

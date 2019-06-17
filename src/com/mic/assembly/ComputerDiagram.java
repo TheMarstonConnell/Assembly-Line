@@ -31,6 +31,7 @@ public class ComputerDiagram extends JPanel {
 	public boolean MEMupdate = false;
 	public boolean DisplayUpdate = false;
 	public boolean InputUpdate = false;
+	public String currentAction = "";
 
 	AssemblyWindow aw;
 
@@ -40,6 +41,10 @@ public class ComputerDiagram extends JPanel {
 	 */
 	public ComputerDiagram(AssemblyWindow aw) {
 		this.aw = aw;
+	}
+	
+	public void setCurrentAction(String action) {
+		this.currentAction = action;
 	}
 
 	/**
@@ -53,6 +58,8 @@ public class ComputerDiagram extends JPanel {
 
 		Color light = Color.RED;
 
+		g.drawString(currentAction, 0, 10 + g.getFontMetrics().getHeight());
+		
 		// Memory//
 		if (MEMupdate) {
 			g.setColor(light);
@@ -61,7 +68,6 @@ public class ComputerDiagram extends JPanel {
 		}
 		g.drawRect(getWidth() / 2 - getWidth() / 6, getHeight() / 2 - getWidth() / 6, getWidth() / 6, getWidth() / 3);
 		g.drawString("Memory", getWidth() / 2 - getWidth() / 6, getHeight() / 2 - getWidth() / 6);
-
 		// Memory//
 
 		// Display//
@@ -245,6 +251,7 @@ public class ComputerDiagram extends JPanel {
 		MEMupdate = false;
 		InputUpdate = false;
 		DisplayUpdate = false;
+		currentAction = "";
 
 	}
 
