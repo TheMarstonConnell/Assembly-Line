@@ -5,5 +5,6 @@
 	<classpathentry kind="src" path="Resources"/>
 	<classpathentry kind="lib" path="libs/arduino.jar"/>
 	<classpathentry kind="lib" path="libs/jSerialComm-2.4.2.jar"/>
+	<classpathentry kind="lib" path="libs/autocomplete-2.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

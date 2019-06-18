@@ -8,13 +8,19 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -22,11 +28,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+
+import com.mic.lib.AutoSuggestor;
 import com.mic.lib.IDETextPane;
 
 /**
@@ -43,6 +54,7 @@ public class AssemblyWindow extends JPanel {
 			"key", "end", "tra", "tre", "tne", "tlt", "tgt", "tle", "tge", "lal", "lml", "adl", "sbl", "mpl", "dvl",
 			"lax", "stx", "inx", "dex", "lay", "sty", "iny", "dey", "gsb", "ret", "def", "rep", "drw", "cxp", "cyp",
 			"red", "grn", "blu", "wat", "drd", "dwh", "dwl" };
+	ArrayList<String> pointerStrings;
 
 	protected IDETextPane code;
 	private JButton runButton;
@@ -88,6 +100,9 @@ public class AssemblyWindow extends JPanel {
 
 	private HashMap<String, Integer> pointers;
 
+	CompletionProvider provider;
+	AutoCompletion ac;
+
 	int recentChange = 0;
 
 	private JDialog diagFrame;
@@ -122,10 +137,85 @@ public class AssemblyWindow extends JPanel {
 
 		commands = new String[1000];
 		pointers = new HashMap<String, Integer>();
-
+		pointerStrings = new ArrayList<String>();
 		this.setBorder(new EmptyBorder(20, 20, 20, 20));
 
 		code = new IDETextPane(possibleCommands);
+
+		int condition = JComponent.WHEN_FOCUSED;
+		InputMap iMap = code.getInputMap(condition);
+		ActionMap aMap = code.getActionMap();
+
+		String enter = "enter";
+		iMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), enter);
+		aMap.put(enter, new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (!useNums) {
+					boolean changed = false;
+					String checkLine = code.getText();
+					int comment = checkLine.indexOf("#");
+					int lineStart = checkLine.lastIndexOf(System.lineSeparator());
+					
+
+					if (lineStart == -1) {
+						lineStart = 0;
+					}
+
+					if (comment <= lineStart) {
+						comment = checkLine.indexOf("//");
+					}
+					if (comment == -1) {
+
+						comment = checkLine.length();
+					}
+
+					if (comment > lineStart) {
+						String newText = checkLine.substring(lineStart, comment);
+
+						String[] arr = newText.split(" ");
+						for (String word : arr) {
+							boolean used = false;
+							for (String command : possibleCommands) {
+								if (command.trim().equals(word.trim())) {
+									used = true;
+								}
+							}
+							if (pointerStrings.contains(word)) {
+								used = true;
+							}
+
+							if (!used) {
+								pointerStrings.add(word);
+								changed = true;
+							}
+						}
+					}
+					String[] words = new String[possibleCommands.length + pointerStrings.size()];
+					for (int x = 0; x < possibleCommands.length + pointerStrings.size(); x++) {
+						if (x < possibleCommands.length) {
+							words[x] = possibleCommands[x];
+						} else {
+							words[x] = pointerStrings.get(x - possibleCommands.length);
+						}
+					}
+					provider = AutoSuggestor.createCompletionProvider(words);
+					ac.setCompletionProvider(provider);
+					ac.uninstall();
+					ac.install(code);
+					int caret = code.getCaretPosition();
+					
+					code.setText(code.getText().substring(0, caret) + "\n" + code.getText().substring(caret));
+					code.setCaretPosition(caret + 1);
+				}
+			}
+		});
+
+		provider = AutoSuggestor.createCompletionProvider(possibleCommands);
+
+		ac = new AutoCompletion(provider);
+		ac.install(code);
 
 		tln = new TextLineNumber(code.highLighter);
 		tln.setMinimumDisplayDigits(3);
