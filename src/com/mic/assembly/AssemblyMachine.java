@@ -256,6 +256,7 @@ public class AssemblyMachine {
 				aw.scrollPane.setColumnHeaderView(aw.codeTitle);
 
 				aw.code.update();
+				aw.removeEnter();
 				saveUserPrefs();
 			}
 
@@ -271,6 +272,8 @@ public class AssemblyMachine {
 				aw.codeTitle.setText("Assembler");
 				aw.scrollPane.setColumnHeaderView(aw.codeTitle);
 				aw.code.update();
+				aw.addEnter();
+
 				saveUserPrefs();
 			}
 
@@ -609,6 +612,12 @@ public class AssemblyMachine {
 					switch (x) {
 					case 0:
 						useNums = Boolean.parseBoolean(line.trim());
+						if(useNums) {
+							aw.removeEnter();
+
+						}else {
+							aw.addEnter();
+						}
 						break;
 					case 1:
 						darkMode = Boolean.parseBoolean(line.trim());

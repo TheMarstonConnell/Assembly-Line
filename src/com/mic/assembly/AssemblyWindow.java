@@ -33,6 +33,7 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -124,24 +125,16 @@ public class AssemblyWindow extends JPanel {
 		}
 		return false;
 	}
+	
+	public void removeEnter() {
+		int condition = JComponent.WHEN_FOCUSED;
 
-	/**
-	 * Initializes the panel for inside the frame with all the buttons and other
-	 * inputs/outputs.
-	 * 
-	 * @author Marston Connell
-	 */
-	public AssemblyWindow(Font font, AssemblyMachine am) {
-		super(new GridBagLayout());
-		this.am = am;
+		InputMap iMap = code.getInputMap(condition);
 
-		commands = new String[1000];
-		pointers = new HashMap<String, Integer>();
-		pointerStrings = new ArrayList<String>();
-		this.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-		code = new IDETextPane(possibleCommands);
-
+		iMap.clear();
+	}
+	
+	public void addEnter() {
 		int condition = JComponent.WHEN_FOCUSED;
 		InputMap iMap = code.getInputMap(condition);
 		ActionMap aMap = code.getActionMap();
@@ -206,11 +199,42 @@ public class AssemblyWindow extends JPanel {
 					ac.install(code);
 					int caret = code.getCaretPosition();
 					
+					code.setText(code.getText().substring(0, caret) + " \n" + code.getText().substring(caret));
+					code.setCaretPosition(caret + 2);
+					try {
+						code.fixColors();
+					} catch (BadLocationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else {
+					int caret = code.getCaretPosition();
+					
 					code.setText(code.getText().substring(0, caret) + "\n" + code.getText().substring(caret));
 					code.setCaretPosition(caret + 1);
 				}
 			}
 		});
+	}
+
+	/**
+	 * Initializes the panel for inside the frame with all the buttons and other
+	 * inputs/outputs.
+	 * 
+	 * @author Marston Connell
+	 */
+	public AssemblyWindow(Font font, AssemblyMachine am) {
+		super(new GridBagLayout());
+		this.am = am;
+
+		commands = new String[1000];
+		pointers = new HashMap<String, Integer>();
+		pointerStrings = new ArrayList<String>();
+		this.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+		code = new IDETextPane(possibleCommands);
+
+		
 
 		provider = AutoSuggestor.createCompletionProvider(possibleCommands);
 

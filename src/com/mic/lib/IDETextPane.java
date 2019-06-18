@@ -151,7 +151,7 @@ public class IDETextPane extends JTextPane {
 	 * @author Marston Connell
 	 * @throws BadLocationException
 	 */
-	private void fixColors() throws BadLocationException {
+	public void fixColors() throws BadLocationException {
 		newestLine = 0;
 		DefaultStyledDocument doc = (DefaultStyledDocument) this.getDocument();
 
