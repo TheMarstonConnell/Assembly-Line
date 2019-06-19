@@ -456,7 +456,7 @@ public class AssemblyMachine {
 
 		createAndShowGUI();
 		loadUserPrefs();
-		loadBar.dispose();
+		loadBar.setVisible(false);
 	}
 
 	/**
@@ -640,16 +640,16 @@ public class AssemblyMachine {
 		loadBar.increase();
 
 
-		readingFile = new File(dir, "tos.dat");
-		try {
-			reader = new BufferedReader(new FileReader(readingFile));
-			String line = reader.readLine();
-			sendStats = Boolean.parseBoolean(line.trim());
-			System.out.println(sendStats);
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		readingFile = new File(dir, "tos.dat");
+//		try {
+//			reader = new BufferedReader(new FileReader(readingFile));
+//			String line = reader.readLine();
+////			sendStats = Boolean.parseBoolean(line.trim());
+//			System.out.println(sendStats);
+//			reader.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		loadBar.increase();
 
 
