@@ -688,17 +688,17 @@ public class AssemblyMachine {
 	 */
 	private void runFirstTimeSetUp() {
 
-		Object[] options = { "Send data", "Don't Send" };
-		int n = JOptionPane.showOptionDialog(frame,
-				"Would you like to send all error data to our servers to better improve our software?",
-				"Error Tracking", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-				options[1]);
+//		Object[] options = { "Send data", "Don't Send" };
+//		int n = JOptionPane.showOptionDialog(frame,
+//				"Would you like to send all error data to our servers to better improve our software?",
+//				"Error Tracking", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+//				options[1]);
 
 		File dir = getAppData();
 		dir.mkdirs();
 
 		try (PrintWriter out = new PrintWriter(new File(dir, "tos.dat"))) {
-			out.println(n == 0);
+//			out.println(n == 0);
 
 		} catch (FileNotFoundException e1) {
 		}
