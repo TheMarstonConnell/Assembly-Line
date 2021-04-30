@@ -13,12 +13,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,7 +33,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -48,8 +45,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.mic.assembly.arduino.ArduinoHandler;
 
-import plaf.material.MaterialLookAndFeel;
-import plaf.material.utils.MaterialFonts;
+import com.mic.material.MaterialLookAndFeel;
+import com.mic.material.utils.MaterialFonts;
 
 /**
  * The main emulator for the entire machine.
@@ -434,8 +431,8 @@ public class AssemblyMachine {
 		frame.setResizable(false);
 
 		try {
-			frame.setIconImage(ImageIO.read(frame.getClass().getResource("/assemblyIcon.png")));
-		} catch (IOException e1) {
+			frame.setIconImage(ImageIO.read(getClass().getResourceAsStream("/imgs/assemblyIcon.png")));
+		} catch (IOException | IllegalArgumentException e1) {
 			e1.printStackTrace();
 		}
 		loadBar.increase();
