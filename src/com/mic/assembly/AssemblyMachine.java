@@ -45,8 +45,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.mic.assembly.arduino.ArduinoHandler;
 
-import plaf.material.MaterialLookAndFeel;
-import plaf.material.utils.MaterialFonts;
+import com.mic.material.MaterialLookAndFeel;
+import com.mic.material.utils.MaterialFonts;
 
 /**
  * The main emulator for the entire machine.

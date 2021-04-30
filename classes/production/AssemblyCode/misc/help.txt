@@ -1,0 +1,65 @@
+Help Keys 
+adr=address co(adr 45) = contents of address 45
+   
+McnCode	AsmCode	Example	Description
+	
+01	inp	01023	user input goes into adr 23
+02	out	02034	co(adr 34) displayed
+03	lda	03012	co(adr 12) goes into AC
+04	sta	04056	con(AC) goes into adr 56
+05	ldm	05023	co(adr 23) goes into MQ
+06	stm	06045	co(MQ) goes into adr 45
+07	add	07065	co(adr 65) added to AC
+08	sub	08043	co(adr 43) subtracted from AC
+09	mul	09123	MQ multiplied by co(adr 123)
+10	div	10035	MQ divided by co(adr 35)
+11	key	11023	gets current key code and sends it to co(adr 23)
+60	wat	60500	waits in program for 500 milliseconds
+00	end	00000	programs stops executing
+
+Transfer codes
+21	tra	21034	always transfer to adr 34
+22	tre	22056	go to adr 56 if cc=0
+23	tne	23099	go to adr 99 if cc<>0
+24	tlt	24067	go to adr 67 if cc<0
+25	tgt	25078	go to adr 78 if cc>0
+26	tle	26068	go to adr 68 if cc<=0
+27	tge	27073	go to adr 73 if cc>=0
+
+Literals - the address part is the value used
+-21	lal	-21006	6 is put into the AC
+-22	lml	-22056	56 is put into the MQ
+-23	adl	-23034	34 is added to the AC
+-24	sbl	-24789	789 is subtracted from AC
+-25	mpl	-25098	MQ is multiplied by 98
+-26	dvl	-26102	MQ is divided by 102
+
+Registers
+28	lax	28000	load AC with co(X reg)
+29	stx	29000	store co(AC) into X reg
+31	inx	31000	increment ( X = X + 1)
+32	dex	32000	decrement ( X = X - 1)
+-28	lay	-28000	load AC with co(Y reg)
+-29	sty	-29000	store co(AC) into Y reg
+-31	iny	-31000	increment (Y = Y + 1)
+-32	dey	-32000	decrement (Y = Y - 1)
+
+Graphics
+40	rep	40000	repaint display
+41	drw	41000	draws pixel at loaded x and y coordinates of saved colour
+43	cxp	43045	sets x position to 45
+44	cyp	44056	sets y position to 56
+45	red	45123	sets red value to 123
+46	grn	46312	sets green value to 312
+47	blu	47213	sets blue value to 213
+
+Arduino
+51	dwh	51013	sets pin 13 to High
+52	dwl	52013	sets pin 13 to Low
+53	drd	53004	reads the value of pin 4 and loads it into the ac
+
+Condition Codes (CC)
+-Set by most recent change to any of AC, MQ, X, Y registers.
+CC=-1 if a change to a negative
+CC=0 if a change to zero
+CC=1 if a change to a positive

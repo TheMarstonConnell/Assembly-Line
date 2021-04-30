@@ -12,8 +12,8 @@ import javax.swing.text.BadLocationException;
 
 import com.mic.lib.IDETextPane;
 
-import plaf.material.utils.MaterialColors;
-import plaf.material.utils.MaterialDrawingUtils;
+import com.mic.material.utils.MaterialColors;
+import com.mic.material.utils.MaterialDrawingUtils;
 
 /**
  * Highlights current line in the text pane.
